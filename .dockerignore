@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+
+# Source files (we only need dist)
+src
+*.ts
+tsconfig.json
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# IDE
+.vscode
+.idea
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db

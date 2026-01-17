@@ -1,0 +1,10 @@
+services:
+  weather-mcp-server:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    container_name: weather-mcp-server

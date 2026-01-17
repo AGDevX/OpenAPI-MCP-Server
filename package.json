@@ -1,0 +1,32 @@
+{
+	"name": "claude-mcpserver",
+	"version": "1.0.0",
+	"description": "Learning to build an MCP Server with TypeScript and host it in a Docker container",
+	"author": "",
+	"license": "MIT",
+	"type": "module",
+	"main": "dist/index.js",
+	"bin": {
+		"weather-mcp-server": "dist/index.js"
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"dev": "tsx src/index.ts",
+		"watch": "tsc --watch"
+	},
+	"keywords": [
+		"mcp",
+		"weather",
+		"server"
+	],
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.0.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.6",
+		"@types/node": "^22.10.5",
+		"tsx": "^4.19.2",
+		"typescript": "^5.7.2"
+	}
+}
