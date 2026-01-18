@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { OpenApiService } from '../services/open-api-service.js';
-import { generateToolInputSchema, generateToolDescription, getFullDescription, sanitizeToolName } from '../services/tool-generator.js';
+import { generateToolInputSchema, generateToolDescription, sanitizeToolName } from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES } from '../config.js';
 
 //-- Factory function to create and configure a new MCP server instance

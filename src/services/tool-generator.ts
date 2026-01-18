@@ -141,23 +141,6 @@ export function generateToolDescription(operation: ApiOperation): string {
 	return parts.join(' ');
 }
 
-//-- Get full description including additional details
-export function getFullDescription(operation: ApiOperation): string {
-	const parts: string[] = [];
-
-	if (operation.summary) {
-		parts.push(operation.summary);
-	}
-
-	if (operation.description && operation.description !== operation.summary) {
-		parts.push(operation.description);
-	}
-
-	parts.push(`\nEndpoint: ${operation.method} ${operation.path}`);
-
-	return parts.join('\n');
-}
-
 //-- Sanitize operation ID to be a valid tool name
 export function sanitizeToolName(operationId: string): string {
 	//-- Replace non-alphanumeric characters with underscores
