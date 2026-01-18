@@ -1,11 +1,27 @@
 services:
-  openapi-mcp-server:
+  agdevx-openapi-mcp-server:
     build: .
+    image: agdevx-openapi-mcp-server
     ports:
-      - "3001:3000"
+      - '3001:3000'
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      # Required environment variables (set these in your .env file):
+      # - ENVIRONMENTS=qa,prod
+      # - API_SPEC_URL_QA=https://localhost:7087/openapi/v1.json
+      # - API_BASE_URL_QA=https://localhost:7087
+      # - API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json
+      # - API_BASE_URL_PROD=https://api.example.com
+      # Optional:
+      # - DEFAULT_ENVIRONMENT=qa
+      # - MCP_VERBOSE=false
+      # - RATE_LIMIT_ENABLED=true
+      # - RATE_LIMIT_REQUESTS=10
+      # - RATE_LIMIT_WINDOW_MS=60000
     restart: unless-stopped
-    container_name: openapi-mcp-server
+    container_name: agdevx-openapi-mcp-server
+    labels:
+      - "com.docker.compose.project=agdevx-openapi-mcp-server"
+      - "description=MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools"

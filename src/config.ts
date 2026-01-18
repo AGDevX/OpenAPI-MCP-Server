@@ -2,7 +2,7 @@ const THIRTY_SECONDS_IN_MS = '30000';
 const SIXTY_SECONDS_IN_MS = '60000';
 
 export const SERVER_CONFIG = {
-	name: process.env.MCP_SERVER_NAME || 'openapi-mcp-server',
+	name: process.env.MCP_SERVER_NAME || 'agdevx-openapi-mcp-server',
 	version: '1.0.0',
 	defaultPort: 3000
 };

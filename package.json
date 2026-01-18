@@ -1,28 +1,39 @@
 {
-	"name": "openapi-mcp-server",
-	"version": "1.0.0",
-	"description": "MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools for Claude",
-	"author": "",
+	"name": "agdevx-openapi-mcp-server",
+	"version": "0.0.2",
+	"description": "MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools for MCP clients",
+	"author": "AGDevX",
 	"license": "MIT",
 	"type": "module",
 	"main": "dist/index.js",
 	"bin": {
-		"openapi-mcp-server": "dist/index.js"
+		"agdevx-openapi-mcp-server": "dist/index.js"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=18.0.0"
 	},
 	"scripts": {
 		"build": "rimraf dist && tsc",
 		"start": "node dist/index.js",
 		"dev": "tsx src/index.ts",
-		"watch": "tsc --watch"
+		"watch": "tsc --watch",
+		"prepublishOnly": "npm run build"
 	},
 	"keywords": [
 		"mcp",
+		"model-context-protocol",
 		"openapi",
 		"swagger",
 		"api",
 		"claude",
 		"server",
-		"dotnet"
+		"tools",
+		"ai"
 	],
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.0.0",

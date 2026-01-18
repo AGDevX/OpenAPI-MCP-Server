@@ -3,6 +3,7 @@ import { EnvironmentManager } from '../services/environment-manager.js';
 import { generateToolInputSchema, generateToolDescription, sanitizeToolName } from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
 import { RateLimiter } from '../services/rate-limiter.js';
+import { logger } from '../utils/logger.js';
 import { z } from 'zod';
 
 //-- Factory function to create and configure a new MCP server instance
@@ -19,18 +20,16 @@ export async function createApiServer(): Promise<McpServer> {
 		: null;
 
 	if (rateLimiter) {
-		console.log(
-			`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`
-		);
+		logger.log(`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`);
 	} else {
-		console.log('Rate limiting disabled');
+		logger.log('Rate limiting disabled');
 	}
 
 	//-- Initialize all environments (fetch OpenAPI specs)
 	try {
 		await environmentManager.initializeAll();
 	} catch (error) {
-		console.error('Failed to initialize environments:', error);
+		logger.error('Failed to initialize environments:', error);
 		throw new Error('Cannot start MCP server without valid OpenAPI specifications');
 	}
 
@@ -42,11 +41,11 @@ export async function createApiServer(): Promise<McpServer> {
 	//-- Get API info from default environment
 	const defaultService = environmentManager.getService();
 	const apiInfo = await defaultService.getApiInfo();
-	console.log(`Default environment API: ${apiInfo.title} (v${apiInfo.version})`);
+	logger.log(`Default environment API: ${apiInfo.title} (v${apiInfo.version})`);
 
 	//-- Get all operations from the default environment spec
 	const operations = await defaultService.getOperations();
-	console.log(`Found ${operations.length} API operations`);
+	logger.log(`Found ${operations.length} API operations`);
 
 	//-- Track registered operation IDs
 	const registeredOperationIds = new Set<string>();
@@ -56,7 +55,7 @@ export async function createApiServer(): Promise<McpServer> {
 		//-- Get the current operation definition from the default service
 		const operation = await defaultService.getOperationById(operationId);
 		if (!operation) {
-			console.warn(`Operation not found: ${operationId}`);
+			logger.warn(`Operation not found: ${operationId}`);
 			return;
 		}
 
@@ -69,9 +68,11 @@ export async function createApiServer(): Promise<McpServer> {
 		inputSchema.environment = z
 			.enum(environmentEnum as [string, ...string[]])
 			.optional()
-			.describe(`Environment to execute the operation in. Available: ${environmentEnum.join(', ')}. Default: ${environmentManager.getDefaultEnvironment()}`);
+			.describe(
+				`Environment to execute the operation in. Available: ${environmentEnum.join(', ')}. Default: ${environmentManager.getDefaultEnvironment()}`
+			);
 
-		console.log(`Registering tool: ${toolName} (${operation.method} ${operation.path})`);
+		logger.log(`Registering tool: ${toolName} (${operation.method} ${operation.path})`);
 
 		server.registerTool(
 			toolName,
@@ -85,7 +86,7 @@ export async function createApiServer(): Promise<McpServer> {
 					const environment = params.environment as string | undefined;
 					const targetEnv = environment || environmentManager.getDefaultEnvironment();
 
-					console.log(`Executing tool: ${toolName} in environment: ${targetEnv}`, params);
+					logger.log(`Executing tool: ${toolName} in environment: ${targetEnv}`, params);
 
 					//-- Check rate limit if enabled
 					if (rateLimiter) {
@@ -127,7 +128,7 @@ export async function createApiServer(): Promise<McpServer> {
 					};
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					console.error(`Error executing ${toolName}:`, errorMessage);
+					logger.error(`Error executing ${toolName}:`, errorMessage);
 
 					return {
 						content: [
@@ -160,13 +161,15 @@ export async function createApiServer(): Promise<McpServer> {
 				environment: z
 					.enum(environmentEnum as [string, ...string[]])
 					.optional()
-					.describe(`Environment to refresh. Available: ${environmentEnum.join(', ')}. Default: ${environmentManager.getDefaultEnvironment()}`)
+					.describe(
+						`Environment to refresh. Available: ${environmentEnum.join(', ')}. Default: ${environmentManager.getDefaultEnvironment()}`
+					)
 			}
 		},
 		async (params: Record<string, any>) => {
 			try {
 				const environment = (params.environment as string | undefined) || environmentManager.getDefaultEnvironment();
-				console.log(`Refreshing OpenAPI spec for environment: ${environment}...`);
+				logger.log(`Refreshing OpenAPI spec for environment: ${environment}...`);
 
 				//-- Check rate limit if enabled
 				if (rateLimiter) {
@@ -195,15 +198,16 @@ export async function createApiServer(): Promise<McpServer> {
 					}
 				}
 
-				const message = newToolsCount > 0
-					? `OpenAPI spec refreshed successfully for environment "${environment}"!
+				const message =
+					newToolsCount > 0
+						? `OpenAPI spec refreshed successfully for environment "${environment}"!
 
 API: ${newApiInfo.title} (v${newApiInfo.version})
 Total Operations: ${newOperations.length}
 New Operations Registered: ${newToolsCount}
 
 All existing tools have been updated to use the latest spec. New operations are now available.`
-					: `OpenAPI spec refreshed successfully for environment "${environment}"!
+						: `OpenAPI spec refreshed successfully for environment "${environment}"!
 
 API: ${newApiInfo.title} (v${newApiInfo.version})
 Total Operations: ${newOperations.length}
@@ -220,7 +224,7 @@ All existing tools have been updated to use the latest spec. No new operations w
 				};
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
-				console.error('Error refreshing OpenAPI spec:', errorMessage);
+				logger.error('Error refreshing OpenAPI spec:', errorMessage);
 
 				return {
 					content: [
@@ -252,7 +256,9 @@ All existing tools have been updated to use the latest spec. No new operations w
 				for (const env of environments) {
 					const info = await environmentManager.getEnvironmentInfo(env);
 					const isDefault = env === defaultEnv ? ' (default)' : '';
-					envDetails.push(`- ${env}${isDefault}: ${info.apiTitle} v${info.apiVersion} - ${info.baseUrl} (${info.operationsCount} operations)`);
+					envDetails.push(
+						`- ${env}${isDefault}: ${info.apiTitle} v${info.apiVersion} - ${info.baseUrl} (${info.operationsCount} operations)`
+					);
 				}
 
 				return {
@@ -371,7 +377,7 @@ All existing tools have been updated to use the latest spec. No new operations w
 					{
 						uri: RESOURCES.serverInfo.uri,
 						mimeType: RESOURCES.serverInfo.mimeType,
-						text: `OpenAPI MCP Server
+						text: `AGDevX OpenAPI MCP Server
 
 API: ${currentApiInfo.title} (v${currentApiInfo.version})
 ${currentApiInfo.description ? '\n' + currentApiInfo.description + '\n' : ''}
@@ -390,6 +396,6 @@ MCP Server Version: ${SERVER_CONFIG.version}`
 		}
 	);
 
-	console.log('MCP Server initialization complete');
+	logger.log('MCP Server initialization complete');
 	return server;
 }
