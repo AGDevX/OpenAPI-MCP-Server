@@ -1,12 +1,29 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { OpenApiService } from '../services/open-api-service.js';
 import { generateToolInputSchema, generateToolDescription, sanitizeToolName } from '../services/tool-generator.js';
-import { SERVER_CONFIG, RESOURCES } from '../config.js';
+import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
+import { RateLimiter } from '../services/rate-limiter.js';
 
 //-- Factory function to create and configure a new MCP server instance
 //-- Dynamically creates tools based on OpenAPI specification
 export async function createApiServer(): Promise<McpServer> {
 	const openApiService = new OpenApiService();
+
+	//-- Initialize rate limiter if enabled
+	const rateLimiter = RATE_LIMIT_CONFIG.enabled
+		? new RateLimiter({
+				maxRequests: RATE_LIMIT_CONFIG.maxRequests,
+				windowMs: RATE_LIMIT_CONFIG.windowMs
+			})
+		: null;
+
+	if (rateLimiter) {
+		console.log(
+			`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`
+		);
+	} else {
+		console.log('Rate limiting disabled');
+	}
 
 	//-- Fetch the OpenAPI spec at startup
 	try {
@@ -56,6 +73,18 @@ export async function createApiServer(): Promise<McpServer> {
 			async (params: Record<string, any>) => {
 				try {
 					console.log(`Executing tool: ${toolName}`, params);
+
+					//-- Check rate limit if enabled
+					if (rateLimiter) {
+						const { allowed, retryAfter } = await rateLimiter.checkLimit();
+
+						if (!allowed) {
+							const stats = rateLimiter.getStats();
+							throw new Error(
+								`Rate limit exceeded. Maximum ${stats.maxRequests} requests per ${stats.windowMs / 1000} seconds. Please retry after ${retryAfter} seconds.`
+							);
+						}
+					}
 
 					//-- Dynamically look up the current operation definition
 					const currentOperation = await openApiService.getOperationById(operationId);
@@ -112,6 +141,19 @@ export async function createApiServer(): Promise<McpServer> {
 		async () => {
 			try {
 				console.log('Refreshing OpenAPI spec...');
+
+				//-- Check rate limit if enabled
+				if (rateLimiter) {
+					const { allowed, retryAfter } = await rateLimiter.checkLimit();
+
+					if (!allowed) {
+						const stats = rateLimiter.getStats();
+						throw new Error(
+							`Rate limit exceeded. Maximum ${stats.maxRequests} requests per ${stats.windowMs / 1000} seconds. Please retry after ${retryAfter} seconds.`
+						);
+					}
+				}
+
 				await openApiService.fetchSpec();
 
 				const newApiInfo = await openApiService.getApiInfo();
