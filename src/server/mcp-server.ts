@@ -29,9 +29,19 @@ export async function createApiServer(): Promise<McpServer> {
 	const operations = await openApiService.getOperations();
 	console.log(`Found ${operations.length} API operations`);
 
-	//-- Dynamically register tools for each operation
-	for (const operation of operations) {
-		const toolName = sanitizeToolName(operation.operationId);
+	//-- Track registered operation IDs
+	const registeredOperationIds = new Set<string>();
+
+	//-- Helper function to register a tool for an operation
+	const registerOperationTool = async (operationId: string) => {
+		//-- Get the current operation definition from the service
+		const operation = await openApiService.getOperationById(operationId);
+		if (!operation) {
+			console.warn(`Operation not found: ${operationId}`);
+			return;
+		}
+
+		const toolName = sanitizeToolName(operationId);
 		const description = generateToolDescription(operation);
 		const inputSchema = generateToolInputSchema(operation);
 
@@ -46,7 +56,15 @@ export async function createApiServer(): Promise<McpServer> {
 			async (params: Record<string, any>) => {
 				try {
 					console.log(`Executing tool: ${toolName}`, params);
-					const result = await openApiService.executeOperation(operation, params);
+
+					//-- Dynamically look up the current operation definition
+					const currentOperation = await openApiService.getOperationById(operationId);
+
+					if (!currentOperation) {
+						throw new Error(`Operation ${operationId} not found in current spec`);
+					}
+
+					const result = await openApiService.executeOperation(currentOperation, params);
 
 					//-- Format the result as text
 					const resultText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
@@ -67,7 +85,7 @@ export async function createApiServer(): Promise<McpServer> {
 						content: [
 							{
 								type: 'text',
-								text: `Error executing ${operation.method} ${operation.path}: ${errorMessage}`
+								text: `Error executing operation: ${errorMessage}`
 							}
 						],
 						isError: true
@@ -75,7 +93,78 @@ export async function createApiServer(): Promise<McpServer> {
 				}
 			}
 		);
+
+		registeredOperationIds.add(operationId);
+	};
+
+	//-- Register tools for all operations
+	for (const operation of operations) {
+		await registerOperationTool(operation.operationId);
 	}
+
+	//-- Register refresh tool to refetch OpenAPI spec
+	server.registerTool(
+		'refresh_openapi_spec',
+		{
+			description: 'Refetch the OpenAPI specification from the configured URL and register any new operations',
+			inputSchema: {}
+		},
+		async () => {
+			try {
+				console.log('Refreshing OpenAPI spec...');
+				await openApiService.fetchSpec();
+
+				const newApiInfo = await openApiService.getApiInfo();
+				const newOperations = await openApiService.getOperations();
+
+				//-- Register any new operations that weren't previously registered
+				let newToolsCount = 0;
+				for (const operation of newOperations) {
+					if (!registeredOperationIds.has(operation.operationId)) {
+						await registerOperationTool(operation.operationId);
+						newToolsCount++;
+					}
+				}
+
+				const message = newToolsCount > 0
+					? `OpenAPI spec refreshed successfully!
+
+API: ${newApiInfo.title} (v${newApiInfo.version})
+Total Operations: ${newOperations.length}
+New Operations Registered: ${newToolsCount}
+
+All existing tools have been updated to use the latest spec. New operations are now available.`
+					: `OpenAPI spec refreshed successfully!
+
+API: ${newApiInfo.title} (v${newApiInfo.version})
+Total Operations: ${newOperations.length}
+
+All existing tools have been updated to use the latest spec. No new operations were found.`;
+
+				return {
+					content: [
+						{
+							type: 'text',
+							text: message
+						}
+					]
+				};
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				console.error('Error refreshing OpenAPI spec:', errorMessage);
+
+				return {
+					content: [
+						{
+							type: 'text',
+							text: `Failed to refresh OpenAPI spec: ${errorMessage}`
+						}
+					],
+					isError: true
+				};
+			}
+		}
+	);
 
 	//-- Register server information resource
 	server.registerResource(
@@ -86,9 +175,17 @@ export async function createApiServer(): Promise<McpServer> {
 			mimeType: RESOURCES.serverInfo.mimeType
 		},
 		async () => {
-			const toolsList = operations
+			//-- Get current API info and operations
+			const currentApiInfo = await openApiService.getApiInfo();
+			const currentOperations = await openApiService.getOperations();
+
+			const operationToolsList = currentOperations
 				.map((op) => `- ${sanitizeToolName(op.operationId)}: ${op.method} ${op.path}${op.summary ? ' - ' + op.summary : ''}`)
 				.join('\n');
+
+			//-- Add the refresh tool to the list
+			const toolsList = `${operationToolsList}
+- refresh_openapi_spec: Refetch the OpenAPI specification from the configured URL and register any new operations`;
 
 			return {
 				contents: [
@@ -97,10 +194,10 @@ export async function createApiServer(): Promise<McpServer> {
 						mimeType: RESOURCES.serverInfo.mimeType,
 						text: `OpenAPI MCP Server
 
-API: ${apiInfo.title} (v${apiInfo.version})
-${apiInfo.description ? '\n' + apiInfo.description + '\n' : ''}
+API: ${currentApiInfo.title} (v${currentApiInfo.version})
+${currentApiInfo.description ? '\n' + currentApiInfo.description + '\n' : ''}
 Base URL: ${openApiService.getBaseUrl()}
-Available Operations: ${operations.length}
+Available Operations: ${currentOperations.length}
 
 Tools:
 ${toolsList}

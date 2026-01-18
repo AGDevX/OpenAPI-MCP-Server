@@ -199,4 +199,10 @@ export class OpenApiService {
 			description: spec.info?.description
 		};
 	}
+
+	//-- Get a specific operation by operationId
+	async getOperationById(operationId: string): Promise<ApiOperation | null> {
+		const operations = await this.getOperations();
+		return operations.find((op) => op.operationId === operationId) || null;
+	}
 }
