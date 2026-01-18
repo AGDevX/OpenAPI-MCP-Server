@@ -1,20 +1,16 @@
 #!/usr/bin/env node
-/**
- * OpenAPI MCP Server
- * Dynamically exposes API endpoints from OpenAPI specification as MCP tools
- */
 
-// Allow self-signed certificates (for development/testing)
+//-- Allow self-signed certificates (for development/testing)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-import { createMcpHttpApp } from './server/httpTransport.js';
+import { createMcpHttpApp } from './server/http-transport.js';
 import { SERVER_CONFIG, OPENAPI_CONFIG } from './config.js';
 
 async function main() {
 	console.log('Starting OpenAPI MCP Server...');
 	console.log(`Server name: ${SERVER_CONFIG.name}`);
 
-	// Validate configuration
+	//-- Validate configuration
 	if (!OPENAPI_CONFIG.specUrl) {
 		console.error('ERROR: API_SPEC_URL environment variable is required');
 		console.error('Please set API_SPEC_URL to your OpenAPI specification URL');
@@ -30,7 +26,7 @@ async function main() {
 	const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : SERVER_CONFIG.defaultPort;
 	const app = createMcpHttpApp();
 
-	// Start the server
+	//-- Start the server
 	app.listen(PORT, () => {
 		console.log(`OpenAPI MCP Server listening on http://localhost:${PORT}`);
 		console.log(`MCP endpoint: http://localhost:${PORT}/mcp`);

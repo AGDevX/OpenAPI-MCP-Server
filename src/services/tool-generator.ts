@@ -1,13 +1,11 @@
 import { z } from 'zod';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
-import { ApiOperation } from './openApiService.js';
+import { ApiOperation } from './open-api-service.js';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
 type SchemaObject = OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject;
 
-/**
- * Convert OpenAPI schema type to Zod schema
- */
+//-- Convert OpenAPI schema type to Zod schema
 function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = false): z.ZodTypeAny {
 	if (!schema) {
 		return z.any().optional();
@@ -15,7 +13,7 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 
 	let zodSchema: z.ZodTypeAny;
 
-	// Handle different schema types
+	//-- Handle different schema types
 	switch (schema.type) {
 		case 'string':
 			if (schema.enum && schema.enum.length >= 2) {
@@ -73,12 +71,12 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 			zodSchema = z.any();
 	}
 
-	// Add description if available
+	//-- Add description if available
 	if (schema.description) {
 		zodSchema = zodSchema.describe(schema.description);
 	}
 
-	// Make optional if not required
+	//-- Make optional if not required
 	if (!isRequired) {
 		zodSchema = zodSchema.optional();
 	}
@@ -86,43 +84,36 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 	return zodSchema;
 }
 
-/**
- * Convert OpenAPI parameter to Zod schema
- */
+//-- Convert OpenAPI parameter to Zod schema
 function parameterToZod(param: ParameterObject): z.ZodTypeAny {
 	const isRequired = param.required === true;
 	const schema = param.schema as SchemaObject | undefined;
 
 	let zodSchema = schemaToZod(schema, isRequired);
 
-	// Override description with parameter description if available
+	//-- Override description with parameter description if available
 	const description = param.description || schema?.description || `${param.name} parameter`;
 	zodSchema = zodSchema.describe(description);
 
 	return zodSchema;
 }
 
-/**
- * Generate tool input schema from OpenAPI operation parameters
- */
+//-- Generate tool input schema from OpenAPI operation parameters
 export function generateToolInputSchema(operation: ApiOperation): Record<string, z.ZodTypeAny> {
 	const schema: Record<string, z.ZodTypeAny> = {};
 
-	// Add parameters to schema
+	//-- Add parameters to schema
 	for (const param of operation.parameters) {
 		schema[param.name] = parameterToZod(param);
 	}
 
-	// Handle request body
+	//-- Handle request body
 	if (operation.requestBody && 'content' in operation.requestBody) {
 		const content = operation.requestBody.content;
 		const jsonContent = content['application/json'];
 
 		if (jsonContent && jsonContent.schema) {
-			const bodySchema = schemaToZod(
-				jsonContent.schema as SchemaObject,
-				operation.requestBody.required === true
-			);
+			const bodySchema = schemaToZod(jsonContent.schema as SchemaObject, operation.requestBody.required === true);
 
 			const description = operation.requestBody.description || 'Request body';
 			schema.body = bodySchema.describe(description);
@@ -132,29 +123,25 @@ export function generateToolInputSchema(operation: ApiOperation): Record<string,
 	return schema;
 }
 
-/**
- * Generate tool description from OpenAPI operation
- */
+//-- Generate tool description from OpenAPI operation
 export function generateToolDescription(operation: ApiOperation): string {
 	const parts: string[] = [];
 
 	if (operation.summary) {
 		parts.push(operation.summary);
 	} else if (operation.description) {
-		// Use first line of description as summary
+		//-- Use first line of description as summary
 		const firstLine = operation.description.split('\n')[0];
 		parts.push(firstLine);
 	} else {
-		// Fallback to method and path
+		//-- Fallback to method and path
 		parts.push(`${operation.method} ${operation.path}`);
 	}
 
 	return parts.join(' ');
 }
 
-/**
- * Get full description including additional details
- */
+//-- Get full description including additional details
 export function getFullDescription(operation: ApiOperation): string {
 	const parts: string[] = [];
 
@@ -171,22 +158,20 @@ export function getFullDescription(operation: ApiOperation): string {
 	return parts.join('\n');
 }
 
-/**
- * Sanitize operation ID to be a valid tool name
- */
+//-- Sanitize operation ID to be a valid tool name
 export function sanitizeToolName(operationId: string): string {
-	// Replace non-alphanumeric characters with underscores
+	//-- Replace non-alphanumeric characters with underscores
 	let name = operationId.replace(/[^a-zA-Z0-9_]/g, '_');
 
 	// Remove leading/trailing underscores
 	name = name.replace(/^_+|_+$/g, '');
 
-	// Ensure it doesn't start with a number
+	//-- Ensure it doesn't start with a number
 	if (/^\d/.test(name)) {
 		name = 'api_' + name;
 	}
 
-	// Convert to lowercase for consistency
+	//-- Convert to lowercase for consistency
 	name = name.toLowerCase();
 
 	return name;

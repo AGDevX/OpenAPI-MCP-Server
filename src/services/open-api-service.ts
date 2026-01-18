@@ -6,7 +6,6 @@ import { OPENAPI_CONFIG } from '../config.js';
 type OpenAPIDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
 type OperationObject = OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject;
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
-type SchemaObject = OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject;
 
 export interface ApiOperation {
 	operationId: string;
@@ -18,9 +17,7 @@ export interface ApiOperation {
 	requestBody?: OpenAPIV3.RequestBodyObject | OpenAPIV3_1.RequestBodyObject;
 }
 
-/**
- * Service for fetching and managing OpenAPI specifications
- */
+//-- Service for fetching and managing OpenAPI specifications
 export class OpenApiService {
 	private spec: OpenAPIDocument | null = null;
 	private apiClient: AxiosInstance;
@@ -32,15 +29,11 @@ export class OpenApiService {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			httpsAgent: new https.Agent({
-				rejectUnauthorized: false
-			})
+			httpsAgent: new https.Agent()
 		});
 	}
 
-	/**
-	 * Fetch the OpenAPI spec from the configured URL
-	 */
+	//-- Fetch the OpenAPI spec from the configured URL
 	async fetchSpec(): Promise<OpenAPIDocument> {
 		if (!OPENAPI_CONFIG.specUrl) {
 			throw new Error('API_SPEC_URL environment variable is not configured');
@@ -50,9 +43,7 @@ export class OpenApiService {
 			console.log(`Fetching OpenAPI spec from: ${OPENAPI_CONFIG.specUrl}`);
 			const response = await axios.get<OpenAPIDocument>(OPENAPI_CONFIG.specUrl, {
 				timeout: OPENAPI_CONFIG.timeout,
-				httpsAgent: new https.Agent({
-					rejectUnauthorized: false
-				})
+				httpsAgent: new https.Agent()
 			});
 
 			this.spec = response.data;
@@ -68,20 +59,14 @@ export class OpenApiService {
 		}
 	}
 
-	/**
-	 * Get the cached spec or fetch if not available
-	 */
+	//-- Get the cached spec or fetch if not available
 	async getSpec(): Promise<OpenAPIDocument> {
 		if (!this.spec) {
 			await this.fetchSpec();
 		}
 
-		// Check if refresh is needed
-		if (
-			OPENAPI_CONFIG.refreshInterval > 0 &&
-			this.lastFetch &&
-			Date.now() - this.lastFetch.getTime() > OPENAPI_CONFIG.refreshInterval
-		) {
+		//-- Check if refresh is needed
+		if (OPENAPI_CONFIG.refreshInterval > 0 && this.lastFetch && Date.now() - this.lastFetch.getTime() > OPENAPI_CONFIG.refreshInterval) {
 			console.log('Refreshing OpenAPI spec...');
 			await this.fetchSpec();
 		}
@@ -89,15 +74,13 @@ export class OpenApiService {
 		return this.spec!;
 	}
 
-	/**
-	 * Get the base URL for API calls
-	 */
+	//-- Get the base URL for API calls
 	getBaseUrl(): string {
 		if (OPENAPI_CONFIG.baseUrl) {
 			return OPENAPI_CONFIG.baseUrl;
 		}
 
-		// Try to extract from spec
+		//-- Try to extract from spec
 		if (this.spec) {
 			if ('servers' in this.spec && this.spec.servers && this.spec.servers.length > 0) {
 				return this.spec.servers[0].url;
@@ -107,9 +90,7 @@ export class OpenApiService {
 		throw new Error('API_BASE_URL not configured and no servers found in OpenAPI spec');
 	}
 
-	/**
-	 * Extract all operations from the OpenAPI spec
-	 */
+	//-- Extract all operations from the OpenAPI spec
 	async getOperations(): Promise<ApiOperation[]> {
 		const spec = await this.getSpec();
 		const operations: ApiOperation[] = [];
@@ -127,7 +108,7 @@ export class OpenApiService {
 				const operation = pathItem[method] as OperationObject | undefined;
 
 				if (operation) {
-					// Get parameters from both operation and path level
+					//-- Get parameters from both operation and path level
 					const pathParams = (pathItem.parameters as ParameterObject[]) || [];
 					const opParams = (operation.parameters as ParameterObject[]) || [];
 					const allParams = [...pathParams, ...opParams];
@@ -148,23 +129,18 @@ export class OpenApiService {
 		return operations;
 	}
 
-	/**
-	 * Execute an API call based on operation details
-	 */
-	async executeOperation(
-		operation: ApiOperation,
-		parameters: Record<string, any>
-	): Promise<any> {
+	//-- Execute an API call based on operation details
+	async executeOperation(operation: ApiOperation, parameters: Record<string, any>): Promise<any> {
 		const baseUrl = this.getBaseUrl();
 		let url = baseUrl + operation.path;
 
-		// Replace path parameters
+		//-- Replace path parameters
 		const pathParams: Record<string, any> = {};
 		const queryParams: Record<string, any> = {};
 		const headerParams: Record<string, any> = {};
 		let bodyData: any = null;
 
-		// Process parameters
+		//-- Process parameters
 		for (const param of operation.parameters) {
 			const paramName = param.name;
 			const paramValue = parameters[paramName];
@@ -185,7 +161,7 @@ export class OpenApiService {
 			}
 		}
 
-		// Handle request body
+		//-- Handle request body
 		if (operation.requestBody && parameters.body) {
 			bodyData = parameters.body;
 		}
@@ -214,9 +190,7 @@ export class OpenApiService {
 		}
 	}
 
-	/**
-	 * Get API info from spec
-	 */
+	//-- Get API info from spec
 	async getApiInfo(): Promise<{ title: string; version: string; description?: string }> {
 		const spec = await this.getSpec();
 		return {

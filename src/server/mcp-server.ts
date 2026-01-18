@@ -1,16 +1,14 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { OpenApiService } from '../services/openApiService.js';
-import { generateToolInputSchema, generateToolDescription, getFullDescription, sanitizeToolName } from '../services/toolGenerator.js';
+import { OpenApiService } from '../services/open-api-service.js';
+import { generateToolInputSchema, generateToolDescription, getFullDescription, sanitizeToolName } from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES } from '../config.js';
 
-/**
- * Factory function to create and configure a new MCP server instance
- * Dynamically creates tools based on OpenAPI specification
- */
+//-- Factory function to create and configure a new MCP server instance
+//-- Dynamically creates tools based on OpenAPI specification
 export async function createApiServer(): Promise<McpServer> {
 	const openApiService = new OpenApiService();
 
-	// Fetch the OpenAPI spec at startup
+	//-- Fetch the OpenAPI spec at startup
 	try {
 		await openApiService.fetchSpec();
 	} catch (error) {
@@ -23,15 +21,15 @@ export async function createApiServer(): Promise<McpServer> {
 		version: SERVER_CONFIG.version
 	});
 
-	// Get API info
+	//-- Get API info
 	const apiInfo = await openApiService.getApiInfo();
 	console.log(`Loaded API: ${apiInfo.title} (v${apiInfo.version})`);
 
-	// Get all operations from the spec
+	//-- Get all operations from the spec
 	const operations = await openApiService.getOperations();
 	console.log(`Found ${operations.length} API operations`);
 
-	// Dynamically register tools for each operation
+	//-- Dynamically register tools for each operation
 	for (const operation of operations) {
 		const toolName = sanitizeToolName(operation.operationId);
 		const description = generateToolDescription(operation);
@@ -50,10 +48,8 @@ export async function createApiServer(): Promise<McpServer> {
 					console.log(`Executing tool: ${toolName}`, params);
 					const result = await openApiService.executeOperation(operation, params);
 
-					// Format the result as text
-					const resultText = typeof result === 'string'
-						? result
-						: JSON.stringify(result, null, 2);
+					//-- Format the result as text
+					const resultText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
 
 					return {
 						content: [
@@ -81,7 +77,7 @@ export async function createApiServer(): Promise<McpServer> {
 		);
 	}
 
-	// Register server information resource
+	//-- Register server information resource
 	server.registerResource(
 		RESOURCES.serverInfo.name,
 		RESOURCES.serverInfo.uri,
@@ -90,9 +86,9 @@ export async function createApiServer(): Promise<McpServer> {
 			mimeType: RESOURCES.serverInfo.mimeType
 		},
 		async () => {
-			const toolsList = operations.map(op =>
-				`- ${sanitizeToolName(op.operationId)}: ${op.method} ${op.path}${op.summary ? ' - ' + op.summary : ''}`
-			).join('\n');
+			const toolsList = operations
+				.map((op) => `- ${sanitizeToolName(op.operationId)}: ${op.method} ${op.path}${op.summary ? ' - ' + op.summary : ''}`)
+				.join('\n');
 
 			return {
 				contents: [
