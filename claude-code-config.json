@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "weather-alerts": {
-      "url": "http://localhost:3001/mcp"
-    }
-  }
-}
