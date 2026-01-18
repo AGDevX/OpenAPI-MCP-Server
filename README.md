@@ -16,6 +16,7 @@ MCP clients will automatically:
 - **Parameter Mapping**: Converts OpenAPI parameters (path, query, header, body) to MCP tool inputs
 - **Type Safety**: Uses Zod schemas for runtime validation based on OpenAPI types
 - **Live Spec Refresh**: Update tools without restarting - existing tools automatically use the latest spec, new operations are registered on-the-fly
+- **Rate Limiting**: Built-in protection for production APIs with configurable request limits
 - **Docker Support**: Easy deployment with Docker and Docker Compose
 - **Environment Configuration**: Flexible configuration via environment variables
 - **Error Handling**: Comprehensive error handling and logging
@@ -50,6 +51,9 @@ All configuration is done via environment variables:
 | `PORT`                  | No       | `3000`               | Port for the MCP server                                         |
 | `API_TIMEOUT`           | No       | `30000`              | API request timeout in milliseconds                             |
 | `SPEC_REFRESH_INTERVAL` | No       | `0`                  | How often to refresh spec (0 = never)                           |
+| `RATE_LIMIT_ENABLED`    | No       | `true`               | Enable/disable rate limiting (`true` or `false`)                |
+| `RATE_LIMIT_REQUESTS`   | No       | `10`                 | Maximum number of requests allowed in time window               |
+| `RATE_LIMIT_WINDOW_MS`  | No       | `60000`              | Rate limit time window in milliseconds (default: 60 seconds)    |
 
 ## Building and Running with Docker
 
@@ -287,6 +291,76 @@ New Operations Registered: 3
 
 All existing tools have been updated to use the latest spec. New operations are now available."
 ```
+
+## Rate Limiting
+
+The server includes built-in rate limiting to protect production APIs from being overwhelmed by too many requests.
+
+### How It Works
+
+Rate limiting uses a **sliding window algorithm** that:
+
+1. Tracks all requests within a configurable time window
+2. Blocks requests that exceed the maximum allowed
+3. Provides clear error messages with retry information
+4. Applies globally to all tools (including `refresh_openapi_spec`)
+
+### Configuration
+
+Rate limiting is **enabled by default** with these settings:
+
+- **Max Requests**: 10 requests
+- **Time Window**: 60 seconds (1 minute)
+
+You can customize these settings via environment variables:
+
+```bash
+RATE_LIMIT_ENABLED=true          # Enable/disable rate limiting
+RATE_LIMIT_REQUESTS=10           # Maximum requests per window
+RATE_LIMIT_WINDOW_MS=60000       # Time window in milliseconds
+```
+
+### Examples
+
+**Allow 200 requests per minute:**
+
+```bash
+RATE_LIMIT_REQUESTS=200
+RATE_LIMIT_WINDOW_MS=60000
+```
+
+**Allow 50 requests per 30 seconds:**
+
+```bash
+RATE_LIMIT_REQUESTS=50
+RATE_LIMIT_WINDOW_MS=30000
+```
+
+**Disable rate limiting (not recommended for production):**
+
+```bash
+RATE_LIMIT_ENABLED=false
+```
+
+### When Rate Limit is Exceeded
+
+If you exceed the rate limit, the tool will return an error message:
+
+```
+Rate limit exceeded. Maximum 10 requests per 60 seconds. Please retry after 15 seconds.
+```
+
+The error includes:
+
+- Current rate limit settings
+- How long to wait before retrying
+
+### Best Practices
+
+- **Production APIs**: Keep rate limiting enabled
+- **Development/Testing**: You can disable it or increase limits
+- **Adjust based on API capacity**: Set limits appropriate for your API's capabilities
+- **Monitor usage**: Check logs to see if rate limits are being hit frequently
 
 ## Troubleshooting
 
