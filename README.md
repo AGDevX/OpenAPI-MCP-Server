@@ -9,8 +9,41 @@ Turn any OpenAPI specification into MCP tools for AI assistants. Point it at you
 - **Live Spec Refresh** - Update tools without restarting
 - **Rate Limiting** - Built-in protection with configurable request limits
 - **Two Transport Methods** - stdio (easiest) or HTTP (Docker)
+- **Easy Configuration UI** - Web-based wizard for non-technical users
 
-## Configuration
+## Quick Start: Configuration UI
+
+The easiest way to configure this server is through the web-based configuration UI:
+
+```bash
+npx agdevx-openapi-mcp-server config-ui
+```
+
+This launches a browser-based wizard that:
+1. Guides you through entering your API details
+2. Tests your OpenAPI spec URLs to verify they work
+3. Auto-detects which MCP clients you have installed
+4. Automatically updates your config file (with backup) or shows you what to copy
+
+**Features:**
+- Visual multi-step wizard
+- Real-time URL validation
+- Support for multiple environments (dev, qa, prod)
+- Auto-detects VS Code, Claude Desktop, and Claude Code
+- Safe auto-update with backups or manual copy option
+
+**Options:**
+```bash
+# Custom port
+npx agdevx-openapi-mcp-server config-ui --port 3001
+
+# Don't auto-open browser
+npx agdevx-openapi-mcp-server config-ui --no-open
+```
+
+After configuring, restart your MCP client and the server will be available.
+
+## Manual Configuration
 
 Configure via environment variables. When using npx, set these in your MCP client config. When using Docker, set them in `.env` file.
 

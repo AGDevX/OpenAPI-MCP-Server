@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>AGDevX OpenAPI MCP Server - Configuration</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<style>
+			.step {
+				display: none;
+			}
+			.step.active {
+				display: block;
+			}
+			.spinner {
+				border: 3px solid #f3f3f3;
+				border-top: 3px solid #3b82f6;
+				border-radius: 50%;
+				width: 20px;
+				height: 20px;
+				animation: spin 1s linear infinite;
+				display: inline-block;
+			}
+			@keyframes spin {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+		</style>
+	</head>
+	<body class="bg-gray-100 min-h-screen">
+		<div class="container mx-auto px-4 py-8 max-w-4xl">
+			<!-- Header -->
+			<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+				<h1 class="text-3xl font-bold text-gray-800 mb-2">AGDevX OpenAPI MCP Server</h1>
+				<p class="text-gray-600">Configuration Wizard</p>
+			</div>
+
+			<!-- Progress Steps -->
+			<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+				<div class="flex justify-between items-center">
+					<div class="flex-1 flex items-center">
+						<div id="progress-1" class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+					</div>
+					<div class="flex-1 flex items-center">
+						<div id="progress-2" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">2</div>
+						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+					</div>
+					<div class="flex-1 flex items-center">
+						<div id="progress-3" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">3</div>
+						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+					</div>
+					<div class="flex-1 flex items-center">
+						<div id="progress-4" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">4</div>
+						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+					</div>
+					<div id="progress-5" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">5</div>
+				</div>
+				<div class="flex justify-between mt-2 text-sm text-gray-600">
+					<span class="flex-1 text-center">Setup</span>
+					<span class="flex-1 text-center">Environments</span>
+					<span class="flex-1 text-center">Testing</span>
+					<span class="flex-1 text-center">Client</span>
+					<span class="flex-1 text-center">Review</span>
+				</div>
+			</div>
+
+			<!-- Main Content -->
+			<div class="bg-white rounded-lg shadow-md p-8">
+				<!-- Step 1: Basic Setup -->
+				<div id="step-1" class="step active">
+					<h2 class="text-2xl font-bold mb-4">Step 1: Basic Setup</h2>
+					<p class="text-gray-600 mb-6">Let's start by configuring your server name and environments.</p>
+
+					<div class="mb-4">
+						<label class="block text-gray-700 font-medium mb-2">Server Name</label>
+						<input
+							type="text"
+							id="server-name"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+							placeholder="my-api"
+							value="my-api"
+						/>
+						<p class="text-sm text-gray-500 mt-1">A unique name for this API server (letters, numbers, dashes, underscores only)</p>
+					</div>
+
+					<div class="mb-6">
+						<label class="block text-gray-700 font-medium mb-2">Number of Environments</label>
+						<select
+							id="env-count"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="1" selected>1 (Simple setup)</option>
+							<option value="2">2 (e.g., dev, prod)</option>
+							<option value="3">3 (e.g., dev, qa, prod)</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
+						<p class="text-sm text-gray-500 mt-1">How many different environments do you need? (e.g., development, production)</p>
+					</div>
+
+					<!-- Advanced Settings (Collapsible) -->
+					<div class="mb-6 border border-gray-200 rounded-lg">
+						<button
+							onclick="toggleAdvanced()"
+							class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 rounded-lg transition"
+							type="button"
+						>
+							<span class="font-medium text-gray-700">⚙️ Advanced Settings (Optional)</span>
+							<span id="advanced-toggle" class="text-gray-500">▼</span>
+						</button>
+						<div id="advanced-settings" class="hidden px-4 pb-4">
+							<p class="text-sm text-gray-600 mb-4 mt-2">Configure optional server settings. Leave blank to use defaults.</p>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">Verbose Logging</label>
+									<select id="mcp-verbose" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+										<option value="">Default (false)</option>
+										<option value="true">Enabled</option>
+										<option value="false">Disabled</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">API Timeout (ms)</label>
+									<input
+										type="number"
+										id="api-timeout"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+										placeholder="30000"
+										min="1000"
+										max="300000"
+									/>
+								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">Rate Limiting</label>
+									<select id="rate-limit-enabled" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+										<option value="">Default (enabled)</option>
+										<option value="true">Enabled</option>
+										<option value="false">Disabled</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">Max Requests per Window</label>
+									<input
+										type="number"
+										id="rate-limit-requests"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+										placeholder="10"
+										min="1"
+										max="1000"
+									/>
+								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">Rate Limit Window (ms)</label>
+									<input
+										type="number"
+										id="rate-limit-window"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+										placeholder="60000"
+										min="1000"
+										max="3600000"
+									/>
+								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">Spec Refresh Interval (ms)</label>
+									<input
+										type="number"
+										id="spec-refresh-interval"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+										placeholder="0 (disabled)"
+										min="0"
+										max="86400000"
+									/>
+									<p class="text-xs text-gray-500 mt-1">0 = never refresh automatically</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<button onclick="goToStep(2)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+				</div>
+
+				<!-- Step 2: Environment Configuration -->
+				<div id="step-2" class="step">
+					<h2 class="text-2xl font-bold mb-4">Step 2: Environment Configuration</h2>
+					<p class="text-gray-600 mb-6">Configure each environment with its OpenAPI specification URL.</p>
+
+					<div id="environments-container"></div>
+
+					<div class="flex justify-between mt-6">
+						<button onclick="goToStep(1)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
+						<button onclick="goToStep(3)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+					</div>
+				</div>
+
+				<!-- Step 3: Connection Testing -->
+				<div id="step-3" class="step">
+					<h2 class="text-2xl font-bold mb-4">Step 3: Test Connections</h2>
+					<p class="text-gray-600 mb-6">Let's verify that all your OpenAPI URLs are accessible.</p>
+
+					<div id="test-results-container" class="space-y-4"></div>
+
+					<div class="flex justify-between mt-6">
+						<button onclick="goToStep(2)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
+						<button onclick="goToStep(4)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+					</div>
+				</div>
+
+				<!-- Step 4: Client Selection -->
+				<div id="step-4" class="step">
+					<h2 class="text-2xl font-bold mb-4">Step 4: Select MCP Clients</h2>
+					<p class="text-gray-600 mb-6">Choose which MCP clients you want to configure. You can select multiple clients.</p>
+
+					<div id="client-detection" class="mb-6">
+						<div class="flex items-center justify-center py-4">
+							<div class="spinner"></div>
+							<span class="ml-3 text-gray-600">Detecting installed clients...</span>
+						</div>
+					</div>
+
+					<div id="client-selection" class="hidden space-y-4"></div>
+
+					<div class="flex justify-between mt-6">
+						<button onclick="goToStep(3)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
+						<button
+							onclick="goToStep(5)"
+							id="next-to-review"
+							class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+							disabled
+						>
+							Next
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 5: Review and Save -->
+				<div id="step-5" class="step">
+					<h2 class="text-2xl font-bold mb-4">Step 5: Review and Save</h2>
+					<p class="text-gray-600 mb-6">Review your configuration and choose how to save it.</p>
+
+					<div class="mb-6">
+						<h3 class="text-lg font-semibold mb-2">Configuration Summary</h3>
+						<div id="config-summary" class="bg-gray-50 p-4 rounded-lg border border-gray-200"></div>
+					</div>
+
+					<div class="mb-6">
+						<h3 class="text-lg font-semibold mb-4">Generated Configurations</h3>
+						<div id="config-outputs-container" class="space-y-4">
+							<!-- Config sections will be dynamically generated here -->
+						</div>
+					</div>
+
+					<div class="mb-6">
+						<h3 class="text-lg font-semibold mb-2">Save Configuration</h3>
+						<button
+							onclick="saveConfig()"
+							class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition font-medium"
+						>
+							Auto-Update Config Files
+						</button>
+						<p class="text-sm text-gray-500 mt-2">
+							This will backup existing configs and update all selected MCP clients automatically.
+						</p>
+					</div>
+
+					<div id="save-result" class="hidden"></div>
+
+					<div class="flex justify-between mt-6">
+						<button onclick="goToStep(4)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
+						<button onclick="window.close()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition">
+							✓ Finished
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// State
+			let currentStep = 1;
+			let environments = [];
+			let selectedClients = []; // Changed to array for multiple selection
+			let detectedClients = [];
+			let advancedSettings = {}; // Store advanced settings
+
+			// Toggle advanced settings section
+			function toggleAdvanced() {
+				const section = document.getElementById('advanced-settings');
+				const toggle = document.getElementById('advanced-toggle');
+
+				if (section.classList.contains('hidden')) {
+					section.classList.remove('hidden');
+					toggle.textContent = '▲';
+				} else {
+					section.classList.add('hidden');
+					toggle.textContent = '▼';
+				}
+			}
+
+			// Collect advanced settings
+			function collectAdvancedSettings() {
+				const settings = {};
+
+				const verbose = document.getElementById('mcp-verbose').value;
+				if (verbose) settings.MCP_VERBOSE = verbose;
+
+				const timeout = document.getElementById('api-timeout').value;
+				if (timeout) settings.API_TIMEOUT = timeout;
+
+				const rateLimitEnabled = document.getElementById('rate-limit-enabled').value;
+				if (rateLimitEnabled) settings.RATE_LIMIT_ENABLED = rateLimitEnabled;
+
+				const rateLimitRequests = document.getElementById('rate-limit-requests').value;
+				if (rateLimitRequests) settings.RATE_LIMIT_REQUESTS = rateLimitRequests;
+
+				const rateLimitWindow = document.getElementById('rate-limit-window').value;
+				if (rateLimitWindow) settings.RATE_LIMIT_WINDOW_MS = rateLimitWindow;
+
+				const specRefresh = document.getElementById('spec-refresh-interval').value;
+				if (specRefresh) settings.SPEC_REFRESH_INTERVAL = specRefresh;
+
+				return settings;
+			}
+
+			// Update progress indicators
+			function updateProgress(step) {
+				for (let i = 1; i <= 5; i++) {
+					const indicator = document.getElementById(`progress-${i}`);
+					if (i <= step) {
+						indicator.classList.remove('bg-gray-300', 'text-gray-600');
+						indicator.classList.add('bg-blue-500', 'text-white');
+					} else {
+						indicator.classList.remove('bg-blue-500', 'text-white');
+						indicator.classList.add('bg-gray-300', 'text-gray-600');
+					}
+				}
+			}
+
+			// Navigate to step
+			function goToStep(step) {
+				// Save current step data
+				if (currentStep === 1) {
+					const serverName = document.getElementById('server-name').value.trim();
+					if (!serverName) {
+						alert('Please enter a server name');
+						return;
+					}
+					if (!/^[a-zA-Z0-9_-]+$/.test(serverName)) {
+						alert('Server name can only contain letters, numbers, dashes, and underscores');
+						return;
+					}
+					// Collect advanced settings
+					advancedSettings = collectAdvancedSettings();
+				}
+
+				if (currentStep === 2 && step > 2) {
+					// Collect environment data
+					const envCount = parseInt(document.getElementById('env-count').value);
+					environments = [];
+					for (let i = 0; i < envCount; i++) {
+						const name = document.getElementById(`env-name-${i}`).value.trim();
+						const specUrl = document.getElementById(`env-spec-url-${i}`).value.trim();
+						const baseUrl = document.getElementById(`env-base-url-${i}`).value.trim();
+
+						if (!name || !specUrl) {
+							alert(`Please fill in environment ${i + 1} name and spec URL`);
+							return;
+						}
+
+						if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+							alert(`Environment name "${name}" can only contain letters, numbers, dashes, and underscores`);
+							return;
+						}
+
+						environments.push({ name, specUrl, baseUrl: baseUrl || undefined });
+					}
+				}
+
+				// Hide current step
+				document.getElementById(`step-${currentStep}`).classList.remove('active');
+
+				// Show new step
+				currentStep = step;
+				document.getElementById(`step-${currentStep}`).classList.add('active');
+				updateProgress(step);
+
+				// Step-specific logic
+				if (step === 2) {
+					renderEnvironmentForms();
+				} else if (step === 3) {
+					testConnections();
+				} else if (step === 4) {
+					detectMCPClients();
+				} else if (step === 5) {
+					renderReview();
+				}
+			}
+
+			// Render environment forms
+			function renderEnvironmentForms() {
+				const container = document.getElementById('environments-container');
+				const envCount = parseInt(document.getElementById('env-count').value);
+
+				container.innerHTML = '';
+
+				for (let i = 0; i < envCount; i++) {
+					const env = environments[i] || { name: i === 0 ? 'prod' : '', specUrl: '', baseUrl: '' };
+
+					const envDiv = document.createElement('div');
+					envDiv.className = 'mb-6 p-4 border border-gray-200 rounded-lg';
+					envDiv.innerHTML = `
+                    <h3 class="font-semibold text-lg mb-4">Environment ${i + 1}</h3>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 font-medium mb-2">Environment Name</label>
+                        <input type="text" id="env-name-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="prod, dev, qa..." value="${env.name}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 font-medium mb-2">OpenAPI Spec URL</label>
+                        <input type="url" id="env-spec-url-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://api.example.com/openapi/v1.json" value="${env.specUrl}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 font-medium mb-2">Base URL (Optional)</label>
+                        <input type="url" id="env-base-url-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://api.example.com" value="${env.baseUrl || ''}">
+                        <p class="text-sm text-gray-500 mt-1">Override the base URL from the spec (optional)</p>
+                    </div>
+                `;
+					container.appendChild(envDiv);
+				}
+
+				// Add default environment selector
+				const defaultDiv = document.createElement('div');
+				defaultDiv.className = 'mb-4';
+				defaultDiv.innerHTML = `
+                <label class="block text-gray-700 font-medium mb-2">Default Environment</label>
+                <select id="default-env" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    ${Array.from({ length: envCount }, (_, i) => {
+											const envName = environments[i]?.name || `env-${i}`;
+											return `<option value="${i}" ${i === 0 ? 'selected' : ''}>${envName || `Environment ${i + 1}`}</option>`;
+										}).join('')}
+                </select>
+                <p class="text-sm text-gray-500 mt-1">Which environment to use by default</p>
+            `;
+				container.appendChild(defaultDiv);
+			}
+
+			// Test connections
+			async function testConnections() {
+				const container = document.getElementById('test-results-container');
+				container.innerHTML =
+					'<div class="flex items-center justify-center py-8"><div class="spinner"></div><span class="ml-3 text-gray-600">Testing connections...</span></div>';
+
+				const results = [];
+
+				for (const env of environments) {
+					try {
+						const response = await fetch('/api/validate-url', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ url: env.specUrl })
+						});
+
+						const result = await response.json();
+						results.push({ env: env.name, ...result });
+					} catch (error) {
+						results.push({ env: env.name, valid: false, error: 'Failed to test connection' });
+					}
+				}
+
+				// Render results
+				container.innerHTML = results
+					.map(
+						(r) => `
+                <div class="p-4 border rounded-lg ${r.valid ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-semibold ${r.valid ? 'text-green-800' : 'text-red-800'}">${r.env}</h4>
+                            ${
+															r.valid
+																? `
+                                <p class="text-sm text-green-700 mt-1">${r.spec.title} (v${r.spec.version})</p>
+                                ${r.spec.description ? `<p class="text-sm text-gray-600 mt-1">${r.spec.description}</p>` : ''}
+                            `
+																: `
+                                <p class="text-sm text-red-700 mt-1">${r.error}</p>
+                            `
+														}
+                        </div>
+                        <div class="text-2xl">
+                            ${r.valid ? '✓' : '✗'}
+                        </div>
+                    </div>
+                </div>
+            `
+					)
+					.join('');
+			}
+
+			// Detect MCP clients
+			async function detectMCPClients() {
+				const detectionDiv = document.getElementById('client-detection');
+				const selectionDiv = document.getElementById('client-selection');
+
+				try {
+					const response = await fetch('/api/detect-client');
+					const data = await response.json();
+					detectedClients = data.clients;
+
+					detectionDiv.classList.add('hidden');
+					selectionDiv.classList.remove('hidden');
+
+					const clientNames = {
+						vscode: 'VS Code',
+						'claude-desktop': 'Claude Desktop',
+						'claude-code': 'Claude Code'
+					};
+
+					selectionDiv.innerHTML = detectedClients
+						.map(
+							(client) => `
+                    <div class="border border-gray-300 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition client-option"
+                         data-client="${client.type}" onclick="toggleClient('${client.type}')">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="checkbox-${client.type}" value="${client.type}" class="mr-3 w-5 h-5">
+                                <div>
+                                    <h4 class="font-semibold">${clientNames[client.type]}</h4>
+                                    <p class="text-sm text-gray-600">${client.path}</p>
+                                </div>
+                            </div>
+                            <div class="text-sm ${client.found ? 'text-green-600' : 'text-gray-400'}">
+                                ${client.found ? '✓ Found' : 'Not found'}
+                            </div>
+                        </div>
+                    </div>
+                `
+						)
+						.join('');
+				} catch (error) {
+					detectionDiv.innerHTML = '<p class="text-red-600">Failed to detect clients. You can still proceed manually.</p>';
+				}
+			}
+
+			// Toggle client selection
+			function toggleClient(clientType) {
+				const checkbox = document.getElementById(`checkbox-${clientType}`);
+				const clientDiv = document.querySelector(`[data-client="${clientType}"]`);
+
+				// Toggle checkbox
+				checkbox.checked = !checkbox.checked;
+
+				// Update selected clients array
+				if (checkbox.checked) {
+					if (!selectedClients.includes(clientType)) {
+						selectedClients.push(clientType);
+					}
+					clientDiv.classList.add('border-blue-500', 'bg-blue-50');
+				} else {
+					selectedClients = selectedClients.filter(c => c !== clientType);
+					clientDiv.classList.remove('border-blue-500', 'bg-blue-50');
+				}
+
+				// Enable/disable next button based on selection
+				document.getElementById('next-to-review').disabled = selectedClients.length === 0;
+			}
+
+			// Render review
+			function renderReview() {
+				if (selectedClients.length === 0) {
+					alert('Please select at least one client');
+					goToStep(4);
+					return;
+				}
+
+				const serverName = document.getElementById('server-name').value;
+				const defaultEnvIndex = parseInt(document.getElementById('default-env').value);
+				const defaultEnvironment = environments[defaultEnvIndex].name;
+
+				const clientNames = {
+					'vscode': 'VS Code',
+					'claude-desktop': 'Claude Desktop',
+					'claude-code': 'Claude Code'
+				};
+
+				// Summary
+				let summary = `
+                <p><strong>Server Name:</strong> ${serverName}</p>
+                <p><strong>Default Environment:</strong> ${defaultEnvironment}</p>
+                <p><strong>Environments:</strong> ${environments.map((e) => e.name).join(', ')}</p>
+                <p><strong>Target Clients:</strong> ${selectedClients.map(c => clientNames[c]).join(', ')}</p>
+            `;
+
+				// Add advanced settings to summary if any are configured
+				if (Object.keys(advancedSettings).length > 0) {
+					summary += `<p class="mt-3"><strong>Advanced Settings:</strong></p><ul class="text-sm text-gray-700 ml-4">`;
+					Object.entries(advancedSettings).forEach(([key, value]) => {
+						const label = key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+						summary += `<li>${label}: ${value}</li>`;
+					});
+					summary += `</ul>`;
+				}
+
+				document.getElementById('config-summary').innerHTML = summary;
+
+				// Generate configs for all selected clients
+				const container = document.getElementById('config-outputs-container');
+				container.innerHTML = '';
+
+				selectedClients.forEach(clientType => {
+					const clientName = clientNames[clientType];
+					const config = generateConfigObject(serverName, environments, defaultEnvironment, clientType);
+					const configJson = JSON.stringify(config, null, 2);
+
+					// Create section for this client
+					const section = document.createElement('div');
+					section.className = 'border border-gray-200 rounded-lg overflow-hidden';
+					section.innerHTML = `
+						<div class="bg-gray-100 px-4 py-2 border-b border-gray-200">
+							<h4 class="font-semibold text-gray-800">${clientName}</h4>
+						</div>
+						<div class="bg-gray-900 text-gray-100 p-4 overflow-auto max-h-80">
+							<pre class="text-sm" id="config-output-${clientType}">${configJson}</pre>
+						</div>
+						<div class="bg-gray-50 px-4 py-2">
+							<button
+								onclick="copyConfigForClient('${clientType}', this)"
+								class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm"
+							>
+								📋 Copy to Clipboard
+							</button>
+						</div>
+					`;
+					container.appendChild(section);
+				});
+			}
+
+			// Generate config object
+			function generateConfigObject(serverName, environments, defaultEnvironment, clientType) {
+				const envVars = {
+					ENVIRONMENTS: environments.map((e) => e.name).join(','),
+					DEFAULT_ENVIRONMENT: defaultEnvironment
+				};
+
+				environments.forEach((env) => {
+					const envUpper = env.name.toUpperCase();
+					envVars[`API_SPEC_URL_${envUpper}`] = env.specUrl;
+					if (env.baseUrl) {
+						envVars[`API_BASE_URL_${envUpper}`] = env.baseUrl;
+					}
+				});
+
+				// Add advanced settings if configured
+				Object.assign(envVars, advancedSettings);
+
+				if (clientType === 'vscode') {
+					return {
+						servers: {
+							[serverName]: {
+								type: 'stdio',
+								command: 'npx',
+								args: ['agdevx-openapi-mcp-server'],
+								env: envVars
+							}
+						}
+					};
+				} else {
+					return {
+						mcpServers: {
+							[serverName]: {
+								command: 'npx',
+								args: ['agdevx-openapi-mcp-server'],
+								env: envVars
+							}
+						}
+					};
+				}
+			}
+
+			// Copy config to clipboard for a specific client
+			function copyConfigForClient(clientType, buttonElement) {
+				const configElement = document.getElementById(`config-output-${clientType}`);
+				const configText = configElement.textContent;
+
+				navigator.clipboard
+					.writeText(configText)
+					.then(() => {
+						// Show success feedback
+						const originalText = buttonElement.innerHTML;
+						buttonElement.innerHTML = '✓ Copied!';
+						buttonElement.classList.add('bg-green-600');
+						buttonElement.classList.remove('bg-gray-700');
+
+						setTimeout(() => {
+							buttonElement.innerHTML = originalText;
+							buttonElement.classList.remove('bg-green-600');
+							buttonElement.classList.add('bg-gray-700');
+						}, 2000);
+					})
+					.catch(() => {
+						alert('Failed to copy. Please select and copy manually.');
+					});
+			}
+
+			// Save config
+			async function saveConfig() {
+				const serverName = document.getElementById('server-name').value;
+				const defaultEnvIndex = parseInt(document.getElementById('default-env').value);
+				const defaultEnvironment = environments[defaultEnvIndex].name;
+
+				const resultDiv = document.getElementById('save-result');
+				resultDiv.innerHTML =
+					'<div class="flex items-center justify-center py-4"><div class="spinner"></div><span class="ml-3 text-gray-600">Saving configuration...</span></div>';
+				resultDiv.classList.remove('hidden');
+
+				const clientNames = {
+					'vscode': 'VS Code',
+					'claude-desktop': 'Claude Desktop',
+					'claude-code': 'Claude Code'
+				};
+
+				try {
+					// Save to all selected clients
+					const results = [];
+					for (const clientType of selectedClients) {
+						const response = await fetch('/api/save-config', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								client: clientType,
+								serverName,
+								environments,
+								defaultEnvironment,
+								autoUpdate: true
+							})
+						});
+
+						const result = await response.json();
+						results.push({ clientType, clientName: clientNames[clientType], ...result });
+					}
+
+					// Display results
+					const successCount = results.filter(r => r.success).length;
+					const failureCount = results.length - successCount;
+
+					let html = '<div class="space-y-4">';
+
+					if (successCount > 0) {
+						html += '<div class="bg-green-50 border border-green-300 rounded-lg p-4">';
+						html += `<h4 class="font-semibold text-green-800 mb-2">Success! (${successCount}/${results.length} clients)</h4>`;
+						results.filter(r => r.success).forEach(result => {
+							html += `<p class="text-green-700 text-sm">✓ <strong>${result.clientName}:</strong> <code class="bg-green-100 px-2 py-1 rounded">${result.path}</code></p>`;
+							if (result.backedUp) {
+								html += '<p class="text-xs text-green-600 ml-4">Previous config backed up</p>';
+							}
+						});
+						html += '<p class="text-sm text-gray-600 mt-4">Next steps:</p>';
+						html += '<ol class="text-sm text-gray-700 list-decimal ml-5 mt-2">';
+						html += '<li>Restart your MCP clients (VS Code, Claude Desktop, etc.)</li>';
+						html += '<li>The server should now be available</li>';
+						html += '</ol>';
+						html += '</div>';
+					}
+
+					if (failureCount > 0) {
+						html += '<div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">';
+						html += `<h4 class="font-semibold text-yellow-800 mb-2">Some Clients Failed (${failureCount}/${results.length})</h4>`;
+						results.filter(r => !r.success).forEach(result => {
+							html += `<p class="text-yellow-700 text-sm">✗ <strong>${result.clientName}:</strong> ${result.error}</p>`;
+						});
+						html += '<p class="text-sm text-gray-600 mt-2">You can use the "Copy to Clipboard" buttons above to manually update failed clients.</p>';
+						html += '</div>';
+					}
+
+					html += '</div>';
+					resultDiv.innerHTML = html;
+				} catch (error) {
+					resultDiv.innerHTML = `
+                    <div class="bg-red-50 border border-red-300 rounded-lg p-4">
+                        <h4 class="font-semibold text-red-800 mb-2">Error</h4>
+                        <p class="text-red-700">${error.message}</p>
+                    </div>
+                `;
+				}
+			}
+		</script>
+	</body>
+</html>
