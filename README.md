@@ -73,15 +73,16 @@ API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json
 
 ### Optional Settings
 
-| Variable               | Default                     | Description                                          |
-| ---------------------- | --------------------------- | ---------------------------------------------------- |
-| `MCP_SERVER_NAME`      | `agdevx-openapi-mcp-server` | Give a custom name to the server (e.g., account-api) |
-| `MCP_VERBOSE`          | `false`                     | Enable verbose logging                               |
-| `PORT`                 | `3000`                      | Port for HTTP transport (Docker)                     |
-| `API_TIMEOUT`          | `30000`                     | API request timeout (ms)                             |
-| `RATE_LIMIT_ENABLED`   | `true`                      | Enable rate limiting                                 |
-| `RATE_LIMIT_REQUESTS`  | `10`                        | Max requests per window                              |
-| `RATE_LIMIT_WINDOW_MS` | `60000`                     | Rate limit window (ms)                               |
+| Variable                        | Default                     | Description                                                                      |
+| ------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `MCP_SERVER_NAME`               | `agdevx-openapi-mcp-server` | Give a custom name to the server (e.g., account-api)                            |
+| `MCP_VERBOSE`                   | `false`                     | Enable verbose logging                                                           |
+| `PORT`                          | `3000`                      | Port for HTTP transport (Docker)                                                 |
+| `API_TIMEOUT`                   | `30000`                     | API request timeout (ms)                                                         |
+| `NODE_TLS_REJECT_UNAUTHORIZED`  | `1` (enabled)               | TLS certificate verification. Set to `0` to disable for self-signed certs (dev) |
+| `RATE_LIMIT_ENABLED`            | `true`                      | Enable rate limiting                                                             |
+| `RATE_LIMIT_REQUESTS`           | `10`                        | Max requests per window                                                          |
+| `RATE_LIMIT_WINDOW_MS`          | `60000`                     | Rate limit window (ms)                                                           |
 
 See `.env.example` for all available options.
 
@@ -319,7 +320,7 @@ Use this to:
 - Verify `API_SPEC_URL` is correct in `.env` or client config
 - Test URL manually: `curl https://api.example.com/openapi/v1.json`
 - Ensure API is running and accessible
-- Check SSL/TLS certificate issues with localhost
+- For self-signed certificates (dev/testing), set `NODE_TLS_REJECT_UNAUTHORIZED=0` in your environment variables
 
 ### Docker Issues
 

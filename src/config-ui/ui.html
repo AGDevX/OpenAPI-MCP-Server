@@ -183,6 +183,18 @@
 									/>
 									<p class="text-xs text-gray-500 mt-1">0 = never refresh automatically</p>
 								</div>
+
+								<div>
+									<label class="block text-gray-700 text-sm font-medium mb-1">TLS Certificate Verification</label>
+									<select
+										id="tls-reject-unauthorized"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+									>
+										<option value="">Default (Enabled - Secure)</option>
+										<option value="0">Disabled (For dev/testing only)</option>
+									</select>
+									<p class="text-xs text-gray-500 mt-1">⚠️ Only disable for development with self-signed certificates</p>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -328,6 +340,9 @@
 
 				const specRefresh = document.getElementById('spec-refresh-interval').value;
 				if (specRefresh) settings.SPEC_REFRESH_INTERVAL = specRefresh;
+
+				const tlsReject = document.getElementById('tls-reject-unauthorized').value;
+				if (tlsReject) settings.NODE_TLS_REJECT_UNAUTHORIZED = tlsReject;
 
 				return settings;
 			}
