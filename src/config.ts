@@ -51,7 +51,8 @@ export const ENVIRONMENT_CONFIG = parseEnvironmentConfig();
 
 export const OPENAPI_CONFIG = {
 	timeout: parseInt(process.env.API_TIMEOUT || THIRTY_SECONDS_IN_MS, 10),
-	refreshInterval: parseInt(process.env.SPEC_REFRESH_INTERVAL || '0', 10) //-- 0 means no refresh
+	refreshInterval: parseInt(process.env.SPEC_REFRESH_INTERVAL || '0', 10), //-- 0 means no refresh
+	rejectUnauthorizedTls: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0' //-- Default: true (secure)
 };
 
 export const RATE_LIMIT_CONFIG = {

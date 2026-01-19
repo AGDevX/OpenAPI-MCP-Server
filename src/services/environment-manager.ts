@@ -26,7 +26,14 @@ export class EnvironmentManager {
 		}
 
 		if (this.services.size === 0) {
-			throw new Error('No valid environments configured. Please configure at least one environment.');
+			throw new Error(
+				'No valid environments configured.\n\n' +
+					'Action required:\n' +
+					'1. Set ENVIRONMENTS in your .env file (e.g., ENVIRONMENTS=prod)\n' +
+					'2. Set API_SPEC_URL for each environment (e.g., API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json)\n' +
+					'3. Restart the MCP server\n\n' +
+					'See .env.example for configuration examples.'
+			);
 		}
 
 		logger.log(`Configured environments: ${Array.from(this.services.keys()).join(', ')}`);
@@ -48,7 +55,15 @@ export class EnvironmentManager {
 					})
 					.catch((error) => {
 						logger.error(`✗ Failed to initialize environment "${env}":`, error.message);
-						throw new Error(`Failed to initialize environment "${env}": ${error.message}`);
+						const troubleshooting = error.message.includes('ECONNREFUSED')
+							? 'Check if the API server is running and accessible'
+							: error.message.includes('certificate')
+								? 'For self-signed certificates, set NODE_TLS_REJECT_UNAUTHORIZED=0 in your .env file'
+								: error.message.includes('timeout')
+									? 'The server is taking too long to respond. Check your API_TIMEOUT setting or network connection'
+									: 'Verify the API_SPEC_URL is correct and the endpoint returns a valid OpenAPI specification';
+
+						throw new Error(`Failed to initialize environment "${env}": ${error.message}\n\n` + `Action required: ${troubleshooting}`);
 					})
 			);
 		}
@@ -63,7 +78,11 @@ export class EnvironmentManager {
 
 		const service = this.services.get(env);
 		if (!service) {
-			throw new Error(`Environment "${env}" not found. Available environments: ${this.getEnvironments().join(', ')}`);
+			throw new Error(
+				`Environment "${env}" not found.\n\n` +
+					`Available environments: ${this.getEnvironments().join(', ')}\n\n` +
+					`Action required: Use one of the available environments, or add "${env}" to your ENVIRONMENTS configuration.`
+			);
 		}
 
 		return service;
@@ -87,7 +106,11 @@ export class EnvironmentManager {
 	//-- Set the default environment
 	setDefaultEnvironment(environment: string): void {
 		if (!this.hasEnvironment(environment)) {
-			throw new Error(`Environment "${environment}" not found. Available environments: ${this.getEnvironments().join(', ')}`);
+			throw new Error(
+				`Environment "${environment}" not found.\n\n` +
+					`Available environments: ${this.getEnvironments().join(', ')}\n\n` +
+					`Action required: Choose one of the available environments.`
+			);
 		}
 
 		this.defaultEnvironment = environment;

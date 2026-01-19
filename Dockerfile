@@ -33,8 +33,8 @@ ENV RATE_LIMIT_REQUESTS=10
 ENV RATE_LIMIT_WINDOW_MS=60000
 # Required: Set these when running the container
 # ENV ENVIRONMENTS=qa,prod
-# ENV API_SPEC_URL_QA=https://your-api.com/openapi.json
-# ENV API_SPEC_URL_PROD=https://your-api.com/openapi.json
+# ENV API_SPEC_URL_QA=https://your-api.com/openapi/v1.json
+# ENV API_SPEC_URL_PROD=https://your-api.com/openapi/v1.json
 
 # Run the server
 CMD ["node", "dist/index.js"]

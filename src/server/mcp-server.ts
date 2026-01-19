@@ -30,7 +30,15 @@ export async function createApiServer(): Promise<McpServer> {
 		await environmentManager.initializeAll();
 	} catch (error) {
 		logger.error('Failed to initialize environments:', error);
-		throw new Error('Cannot start MCP server without valid OpenAPI specifications');
+		throw new Error(
+			'Cannot start MCP server without valid OpenAPI specifications.\n\n' +
+				'Common issues:\n' +
+				'1. API_SPEC_URL not configured - Set API_SPEC_URL_{ENVIRONMENT} in your .env file\n' +
+				'2. API server not running - Start your API server first\n' +
+				'3. URL is incorrect - Verify the OpenAPI spec URL is accessible\n' +
+				'4. Self-signed certificates - Set NODE_TLS_REJECT_UNAUTHORIZED=0 for development\n\n' +
+				'See the error above for specific details.'
+		);
 	}
 
 	const server = new McpServer({
@@ -107,7 +115,13 @@ export async function createApiServer(): Promise<McpServer> {
 					const currentOperation = await service.getOperationById(operationId);
 
 					if (!currentOperation) {
-						throw new Error(`Operation ${operationId} not found in current spec for environment ${targetEnv}`);
+						throw new Error(
+							`Operation "${operationId}" not found in current spec for environment "${targetEnv}".\n\n` +
+								`This could happen if:\n` +
+								`1. The API operation was removed from the OpenAPI spec\n` +
+								`2. The spec was updated without refreshing the MCP server\n\n` +
+								`Action required: Run the "refresh_openapi_spec" tool to update available operations.`
+						);
 					}
 
 					//-- Remove environment from params before execution
@@ -341,6 +355,75 @@ All existing tools have been updated to use the latest spec. No new operations w
 		}
 	);
 
+	//-- Register server status/health check tool
+	server.registerTool(
+		'check_server_status',
+		{
+			description: 'Check server health and status including environment reachability, rate limits, and tool availability',
+			inputSchema: {}
+		},
+		async () => {
+			try {
+				const environments = environmentManager.getEnvironments();
+				const statusParts: string[] = [];
+
+				//-- Check environment status and reachability
+				const envStatuses: string[] = [];
+				for (const env of environments) {
+					try {
+						const service = environmentManager.getService(env);
+						const isReachable = await service.checkReachability();
+						const symbol = isReachable ? '✓' : '✗ unreachable';
+						envStatuses.push(`${env}${symbol}`);
+					} catch {
+						envStatuses.push(`${env}✗ unreachable`);
+					}
+				}
+				statusParts.push(`Environments: ${environments.length} (${envStatuses.join(', ')})`);
+
+				//-- Rate limit status
+				if (rateLimiter) {
+					const stats = rateLimiter.getStats();
+					const resetTime = Math.ceil((stats.windowMs - (Date.now() % stats.windowMs)) / 1000);
+					statusParts.push(`Rate Limit: ${stats.currentRequests}/${stats.maxRequests} requests used (resets in ${resetTime}s)`);
+				} else {
+					statusParts.push('Rate Limit: Disabled');
+				}
+
+				//-- Tools available (operation tools + 5 management tools)
+				const managementToolsCount = 5; //-- refresh_openapi_spec, list_environments, get_current_environment, set_default_environment, check_server_status
+				const totalTools = registeredOperationIds.size + managementToolsCount;
+				statusParts.push(`Tools Available: ${totalTools}`);
+
+				//-- Last spec refresh time
+				const defaultService = environmentManager.getService();
+				const lastFetch = defaultService.getLastFetchTime();
+				if (lastFetch) {
+					const minutesAgo = Math.floor((Date.now() - lastFetch.getTime()) / 60000);
+					const timeAgo = minutesAgo === 0 ? 'just now' : minutesAgo === 1 ? '1 minute ago' : `${minutesAgo} minutes ago`;
+					statusParts.push(`Last Spec Refresh: ${timeAgo}`);
+				} else {
+					statusParts.push('Last Spec Refresh: Never');
+				}
+
+				return {
+					content: [
+						{
+							type: 'text',
+							text: statusParts.join('\n')
+						}
+					]
+				};
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				return {
+					content: [{ type: 'text', text: `Error checking server status: ${errorMessage}` }],
+					isError: true
+				};
+			}
+		}
+	);
+
 	//-- Register server information resource
 	server.registerResource(
 		RESOURCES.serverInfo.name,
@@ -364,7 +447,8 @@ All existing tools have been updated to use the latest spec. No new operations w
 - refresh_openapi_spec: Refetch the OpenAPI specification from the configured URL and register any new operations
 - list_environments: List all configured API environments
 - get_current_environment: Get the current default environment
-- set_default_environment: Set the default environment for API operations`;
+- set_default_environment: Set the default environment for API operations
+- check_server_status: Check server health and status including environment reachability, rate limits, and tool availability`;
 
 			const toolsList = `${operationToolsList}${managementTools}`;
 

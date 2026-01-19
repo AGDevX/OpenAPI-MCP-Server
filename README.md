@@ -9,8 +9,41 @@ Turn any OpenAPI specification into MCP tools for AI assistants. Point it at you
 - **Live Spec Refresh** - Update tools without restarting
 - **Rate Limiting** - Built-in protection with configurable request limits
 - **Two Transport Methods** - stdio (easiest) or HTTP (Docker)
+- **Easy Configuration UI** - Web-based wizard for non-technical users
 
-## Configuration
+## Quick Start: Configuration UI
+
+The easiest way to configure this server is through the web-based configuration UI:
+
+```bash
+npx agdevx-openapi-mcp-server config-ui
+```
+
+This launches a browser-based wizard that:
+1. Guides you through entering your API details
+2. Tests your OpenAPI spec URLs to verify they work
+3. Auto-detects which MCP clients you have installed
+4. Automatically updates your config file (with backup) or shows you what to copy
+
+**Features:**
+- Visual multi-step wizard
+- Real-time URL validation
+- Support for multiple environments (dev, qa, prod)
+- Auto-detects VS Code, Claude Desktop, and Claude Code
+- Safe auto-update with backups or manual copy option
+
+**Options:**
+```bash
+# Custom port
+npx agdevx-openapi-mcp-server config-ui --port 3001
+
+# Don't auto-open browser
+npx agdevx-openapi-mcp-server config-ui --no-open
+```
+
+After configuring, restart your MCP client and the server will be available.
+
+## Manual Configuration
 
 Configure via environment variables. When using npx, set these in your MCP client config. When using Docker, set them in `.env` file.
 
@@ -40,15 +73,16 @@ API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json
 
 ### Optional Settings
 
-| Variable               | Default                     | Description                                          |
-| ---------------------- | --------------------------- | ---------------------------------------------------- |
-| `MCP_SERVER_NAME`      | `agdevx-openapi-mcp-server` | Give a custom name to the server (e.g., account-api) |
-| `MCP_VERBOSE`          | `false`                     | Enable verbose logging                               |
-| `PORT`                 | `3000`                      | Port for HTTP transport (Docker)                     |
-| `API_TIMEOUT`          | `30000`                     | API request timeout (ms)                             |
-| `RATE_LIMIT_ENABLED`   | `true`                      | Enable rate limiting                                 |
-| `RATE_LIMIT_REQUESTS`  | `10`                        | Max requests per window                              |
-| `RATE_LIMIT_WINDOW_MS` | `60000`                     | Rate limit window (ms)                               |
+| Variable                        | Default                     | Description                                                                      |
+| ------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `MCP_SERVER_NAME`               | `agdevx-openapi-mcp-server` | Give a custom name to the server (e.g., account-api)                            |
+| `MCP_VERBOSE`                   | `false`                     | Enable verbose logging                                                           |
+| `PORT`                          | `3000`                      | Port for HTTP transport (Docker)                                                 |
+| `API_TIMEOUT`                   | `30000`                     | API request timeout (ms)                                                         |
+| `NODE_TLS_REJECT_UNAUTHORIZED`  | `1` (enabled)               | TLS certificate verification. Set to `0` to disable for self-signed certs (dev) |
+| `RATE_LIMIT_ENABLED`            | `true`                      | Enable rate limiting                                                             |
+| `RATE_LIMIT_REQUESTS`           | `10`                        | Max requests per window                                                          |
+| `RATE_LIMIT_WINDOW_MS`          | `60000`                     | Rate limit window (ms)                                                           |
 
 See `.env.example` for all available options.
 
@@ -187,6 +221,7 @@ Ask Claude:
 - "What tools are available from my API?"
 - "Get all users from my API"
 - "List all available environments"
+- "Check server status"
 
 ## Features
 
@@ -216,6 +251,7 @@ Every API tool includes an optional `environment` parameter. Switch between envi
 - `list_environments` - View all configured environments
 - `get_current_environment` - Check current default
 - `set_default_environment` - Change default
+- `check_server_status` - Health check with environment reachability, rate limits, and tool counts
 
 ### Refresh Spec Without Restarting
 
@@ -246,6 +282,35 @@ RATE_LIMIT_REQUESTS=10
 RATE_LIMIT_WINDOW_MS=60000
 ```
 
+### Server Status & Health Check
+
+Monitor server health and status with the `check_server_status` tool:
+
+```
+"Check server status"
+```
+
+This provides:
+
+- **Environment Status**: Shows which environments are reachable with ✓/✗ indicators
+- **Rate Limit Usage**: Current request count vs. limit with time until reset
+- **Available Tools**: Total count of API operations and management tools
+- **Last Spec Refresh**: Time since the OpenAPI spec was last fetched
+
+Example output:
+```
+Environments: 2 (prod✓, dev✗ unreachable)
+Rate Limit: 3/10 requests used (resets in 45s)
+Tools Available: 15
+Last Spec Refresh: 2 minutes ago
+```
+
+Use this to:
+- Verify all environments are accessible
+- Monitor rate limit usage before making bulk API calls
+- Confirm spec refreshes are working
+- Check total available tools after updates
+
 ## Troubleshooting
 
 ### Server Won't Start
@@ -255,7 +320,7 @@ RATE_LIMIT_WINDOW_MS=60000
 - Verify `API_SPEC_URL` is correct in `.env` or client config
 - Test URL manually: `curl https://api.example.com/openapi/v1.json`
 - Ensure API is running and accessible
-- Check SSL/TLS certificate issues with localhost
+- For self-signed certificates (dev/testing), set `NODE_TLS_REJECT_UNAUTHORIZED=0` in your environment variables
 
 ### Docker Issues
 
