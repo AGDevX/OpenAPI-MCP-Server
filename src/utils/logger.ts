@@ -14,6 +14,15 @@ const isStdioMode = process.env.TRANSPORT !== 'http' && !process.env.PORT;
 const isVerbose = process.env.MCP_VERBOSE === 'true';
 
 export const logger = {
+	always: (...args: any[]) => {
+		if (isStdioMode) {
+			// In stdio mode, use console.error() to write to stderr (not stdout)
+			console.error(...args);
+		} else {
+			console.log(...args);
+		}
+	},
+
 	log: (...args: any[]) => {
 		if (isVerbose) {
 			if (isStdioMode) {
