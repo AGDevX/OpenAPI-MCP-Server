@@ -110,7 +110,7 @@ export function createMcpHttpApp(): Express {
 
 	//-- Graceful shutdown handler
 	const shutdown = async () => {
-		logger.log('Shutting down server...');
+		logger.always('Shutting down server...');
 		await sessionManager.closeAll();
 		process.exit(0);
 	};

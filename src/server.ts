@@ -25,9 +25,9 @@ function getTransport(): 'stdio' | 'http' {
 export async function startServer() {
 	const transport = getTransport();
 
-	logger.log('Starting AGDevX OpenAPI MCP Server...');
-	logger.log(`Server name: ${SERVER_CONFIG.name}`);
-	logger.log(`Transport: ${transport}`);
+	logger.always('Starting AGDevX OpenAPI MCP Server...');
+	logger.always(`Server name: ${SERVER_CONFIG.name}`);
+	logger.always(`Transport: ${transport}`);
 
 	//-- Validate configuration
 	if (ENVIRONMENT_CONFIG.environments.length === 0) {
@@ -49,11 +49,11 @@ export async function startServer() {
 	}
 
 	//-- Log environment configuration
-	logger.log(`Configured environments: ${ENVIRONMENT_CONFIG.environments.join(', ')}`);
-	logger.log(`Default environment: ${ENVIRONMENT_CONFIG.defaultEnvironment}`);
+	logger.always(`Configured environments: ${ENVIRONMENT_CONFIG.environments.join(', ')}`);
+	logger.always(`Default environment: ${ENVIRONMENT_CONFIG.defaultEnvironment}`);
 	for (const env of ENVIRONMENT_CONFIG.environments) {
 		const config = ENVIRONMENT_CONFIG.configs[env];
-		logger.log(`  ${env}: ${config.specUrl}`);
+		logger.always(`  ${env}: ${config.specUrl}`);
 	}
 
 	//-- Start server with appropriate transport
@@ -65,8 +65,8 @@ export async function startServer() {
 
 		//-- Start the HTTP server
 		app.listen(PORT, () => {
-			logger.log(`AGDevX OpenAPI MCP Server listening on http://localhost:${PORT}`);
-			logger.log(`MCP endpoint: http://localhost:${PORT}/mcp`);
+			logger.always(`AGDevX OpenAPI MCP Server listening on http://localhost:${PORT}`);
+			logger.always(`MCP endpoint: http://localhost:${PORT}/mcp`);
 		});
 	}
 }

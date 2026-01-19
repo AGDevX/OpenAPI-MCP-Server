@@ -36,13 +36,13 @@ export class EnvironmentManager {
 			);
 		}
 
-		logger.log(`Configured environments: ${Array.from(this.services.keys()).join(', ')}`);
-		logger.log(`Default environment: ${this.defaultEnvironment}`);
+		logger.always(`Configured environments: ${Array.from(this.services.keys()).join(', ')}`);
+		logger.always(`Default environment: ${this.defaultEnvironment}`);
 	}
 
 	//-- Initialize all environments (fetch specs)
 	async initializeAll(): Promise<void> {
-		logger.log('Initializing all environments...');
+		logger.always('Initializing all environments...');
 
 		const promises: Promise<void>[] = [];
 
@@ -69,7 +69,7 @@ export class EnvironmentManager {
 		}
 
 		await Promise.all(promises);
-		logger.log('All environments initialized successfully');
+		logger.always('All environments initialized successfully');
 	}
 
 	//-- Get service for a specific environment

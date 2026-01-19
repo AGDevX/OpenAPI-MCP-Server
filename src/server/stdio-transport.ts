@@ -4,7 +4,7 @@ import { logger } from '../utils/logger.js';
 
 //-- Create and start the MCP server with stdio transport
 export async function startStdioServer(): Promise<void> {
-	logger.log('Starting AGDevX OpenAPI MCP Server with stdio transport...');
+	logger.always('Starting AGDevX OpenAPI MCP Server with stdio transport...');
 
 	try {
 		//-- Create the MCP server instance
@@ -16,8 +16,8 @@ export async function startStdioServer(): Promise<void> {
 		//-- Connect the server to the transport
 		await server.connect(transport);
 
-		logger.log('MCP Server ready (stdio transport)');
-		logger.log('Waiting for client connection...');
+		logger.always('MCP Server ready (stdio transport)');
+		logger.always('Waiting for client connection...');
 	} catch (error) {
 		logger.error('Failed to start stdio server:', error);
 		throw error;

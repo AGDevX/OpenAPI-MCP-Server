@@ -20,9 +20,9 @@ export async function createApiServer(): Promise<McpServer> {
 		: null;
 
 	if (rateLimiter) {
-		logger.log(`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`);
+		logger.always(`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`);
 	} else {
-		logger.log('Rate limiting disabled');
+		logger.always('Rate limiting disabled');
 	}
 
 	//-- Initialize all environments (fetch OpenAPI specs)
@@ -49,11 +49,11 @@ export async function createApiServer(): Promise<McpServer> {
 	//-- Get API info from default environment
 	const defaultService = environmentManager.getService();
 	const apiInfo = await defaultService.getApiInfo();
-	logger.log(`Default environment API: ${apiInfo.title} (v${apiInfo.version})`);
+	logger.always(`Default environment API: ${apiInfo.title} (v${apiInfo.version})`);
 
 	//-- Get all operations from the default environment spec
 	const operations = await defaultService.getOperations();
-	logger.log(`Found ${operations.length} API operations`);
+	logger.always(`Found ${operations.length} API operations`);
 
 	//-- Track registered operation IDs
 	const registeredOperationIds = new Set<string>();
@@ -480,6 +480,6 @@ MCP Server Version: ${SERVER_CONFIG.version}`
 		}
 	);
 
-	logger.log('MCP Server initialization complete');
+	logger.always('MCP Server initialization complete');
 	return server;
 }
