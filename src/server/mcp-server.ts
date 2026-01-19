@@ -30,7 +30,15 @@ export async function createApiServer(): Promise<McpServer> {
 		await environmentManager.initializeAll();
 	} catch (error) {
 		logger.error('Failed to initialize environments:', error);
-		throw new Error('Cannot start MCP server without valid OpenAPI specifications');
+		throw new Error(
+			'Cannot start MCP server without valid OpenAPI specifications.\n\n' +
+				'Common issues:\n' +
+				'1. API_SPEC_URL not configured - Set API_SPEC_URL_{ENVIRONMENT} in your .env file\n' +
+				'2. API server not running - Start your API server first\n' +
+				'3. URL is incorrect - Verify the OpenAPI spec URL is accessible\n' +
+				'4. Self-signed certificates - Set NODE_TLS_REJECT_UNAUTHORIZED=0 for development\n\n' +
+				'See the error above for specific details.'
+		);
 	}
 
 	const server = new McpServer({
@@ -107,7 +115,13 @@ export async function createApiServer(): Promise<McpServer> {
 					const currentOperation = await service.getOperationById(operationId);
 
 					if (!currentOperation) {
-						throw new Error(`Operation ${operationId} not found in current spec for environment ${targetEnv}`);
+						throw new Error(
+							`Operation "${operationId}" not found in current spec for environment "${targetEnv}".\n\n` +
+								`This could happen if:\n` +
+								`1. The API operation was removed from the OpenAPI spec\n` +
+								`2. The spec was updated without refreshing the MCP server\n\n` +
+								`Action required: Run the "refresh_openapi_spec" tool to update available operations.`
+						);
 					}
 
 					//-- Remove environment from params before execution

@@ -30,7 +30,11 @@ export function getConfigPath(clientType: McpClientType): string {
 
 	const platformPath = paths[clientType]?.[platform];
 	if (!platformPath) {
-		throw new Error(`Unsupported platform: ${platform} for client: ${clientType}`);
+		throw new Error(
+			`Unsupported platform: ${platform} for client: ${clientType}.\n\n` +
+				`This MCP server currently supports Windows, macOS, and Linux.\n` +
+				`If you're running on a supported platform but seeing this error, please report it as a bug.`
+		);
 	}
 
 	return platformPath;

@@ -42,7 +42,13 @@ export class OpenApiService {
 	//-- Fetch the OpenAPI spec from the configured URL
 	async fetchSpec(): Promise<OpenAPIDocument> {
 		if (!this.specUrl) {
-			throw new Error('API_SPEC_URL is not configured for this environment');
+			throw new Error(
+				'API_SPEC_URL is not configured for this environment.\n\n' +
+					'Action required:\n' +
+					'1. Set API_SPEC_URL_{ENVIRONMENT} in your .env file\n' +
+					'2. Example: API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json\n' +
+					'3. Restart the MCP server'
+			);
 		}
 
 		try {
@@ -59,7 +65,49 @@ export class OpenApiService {
 			return this.spec;
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
-				throw new Error(`Failed to fetch OpenAPI spec: ${error.message}`);
+				let actionableMessage = `Failed to fetch OpenAPI spec: ${error.message}\n\n`;
+
+				if (error.code === 'ECONNREFUSED') {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. Verify the API server is running\n' +
+						'2. Check if the URL is correct in your .env file\n' +
+						'3. Ensure there are no firewall or network issues';
+				} else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. Check your network connection\n' +
+						'2. Try increasing API_TIMEOUT in your .env file\n' +
+						'3. Verify the API server is not overloaded';
+				} else if (error.message.includes('certificate')) {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. For self-signed certificates, set NODE_TLS_REJECT_UNAUTHORIZED=0 in your .env\n' +
+						'2. For production, ensure your API has valid SSL certificates\n' +
+						'3. Contact your API administrator if certificate issues persist';
+				} else if (error.response?.status === 404) {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. Verify the OpenAPI spec URL path is correct\n' +
+						'2. Check if the endpoint exists on your API server\n' +
+						'3. Confirm the API version in the URL matches your deployment';
+				} else if (error.response?.status === 401 || error.response?.status === 403) {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. The OpenAPI spec endpoint requires authentication\n' +
+						'2. Configure your API to allow public access to the OpenAPI spec\n' +
+						'3. Or contact your API administrator for access';
+				} else {
+					actionableMessage +=
+						'Action required:\n' +
+						'1. Verify API_SPEC_URL is correct in your .env file\n' +
+						'2. Test the URL in your browser: ' +
+						this.specUrl +
+						'\n' +
+						'3. Check server logs for more details';
+				}
+
+				throw new Error(actionableMessage);
 			}
 			throw error;
 		}
@@ -93,7 +141,13 @@ export class OpenApiService {
 			}
 		}
 
-		throw new Error('API_BASE_URL not configured and no servers found in OpenAPI spec');
+		throw new Error(
+			'API_BASE_URL not configured and no servers found in OpenAPI spec.\n\n' +
+				'Action required:\n' +
+				'1. Add API_BASE_URL_{ENVIRONMENT} to your .env file\n' +
+				'2. Example: API_BASE_URL_PROD=https://api.example.com\n' +
+				'3. Or ensure your OpenAPI spec includes a "servers" section with a URL'
+		);
 	}
 
 	//-- Extract all operations from the OpenAPI spec
@@ -190,7 +244,25 @@ export class OpenApiService {
 				const statusText = error.response?.statusText || 'unknown';
 				const errorData = error.response?.data || error.message;
 
-				throw new Error(`API call failed (${status} ${statusText}): ${JSON.stringify(errorData)}`);
+				let actionableMessage = `API call failed (${status} ${statusText}): ${JSON.stringify(errorData)}\n\n`;
+
+				if (error.code === 'ECONNREFUSED') {
+					actionableMessage += 'The API server is not reachable. Verify the API is running and the base URL is correct.';
+				} else if (error.code === 'ETIMEDOUT') {
+					actionableMessage += 'The API request timed out. The server may be slow or overloaded.';
+				} else if (status === 401) {
+					actionableMessage += 'Authentication required. Check if your API requires authentication headers or credentials.';
+				} else if (status === 403) {
+					actionableMessage += 'Access forbidden. You may not have permission to access this endpoint.';
+				} else if (status === 404) {
+					actionableMessage += 'Endpoint not found. The API path may be incorrect or the endpoint may not exist.';
+				} else if (status === 429) {
+					actionableMessage += 'Rate limit exceeded. Too many requests were made to the API. Wait before retrying.';
+				} else if (status === 500 || status === 502 || status === 503) {
+					actionableMessage += 'The API server encountered an error. Check the API server logs for more details.';
+				}
+
+				throw new Error(actionableMessage);
 			}
 			throw error;
 		}
