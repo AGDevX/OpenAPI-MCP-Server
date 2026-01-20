@@ -4,6 +4,7 @@ import {
 	generateToolInputSchema,
 	generateToolDescription,
 	generateFriendlyToolName,
+	generateUniqueToolName,
 	sanitizeToolName
 } from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
@@ -60,8 +61,9 @@ export async function createApiServer(): Promise<McpServer> {
 	const operations = await defaultService.getOperations();
 	logger.always(`Found ${operations.length} API operations`);
 
-	//-- Track registered operation IDs
+	//-- Track registered operation IDs and tool names
 	const registeredOperationIds = new Set<string>();
+	const registeredToolNames = new Map<string, { operationId: string; operation: any }>(); //-- Map of toolName -> {operationId, operation}
 
 	//-- Helper function to register a tool for an operation
 	const registerOperationTool = async (operationId: string) => {
@@ -72,7 +74,26 @@ export async function createApiServer(): Promise<McpServer> {
 			return;
 		}
 
-		const toolName = generateFriendlyToolName(operation);
+		let toolName = generateFriendlyToolName(operation);
+		const baseToolName = toolName;
+
+		//-- Handle duplicate tool names by intelligently generating a unique name
+		if (registeredToolNames.has(toolName)) {
+			const existingEntry = registeredToolNames.get(toolName)!;
+			logger.warn(
+				`Tool name conflict detected: "${baseToolName}" already registered for operation "${existingEntry.operationId}" (${existingEntry.operation.method} ${existingEntry.operation.path}). ` +
+					`Generating unique name for operation "${operationId}" (${operation.method} ${operation.path}).`
+			);
+			toolName = generateUniqueToolName(baseToolName, operation, existingEntry.operation);
+
+			//-- If still conflicts (unlikely), fall back to numeric suffix
+			let suffix = 2;
+			while (registeredToolNames.has(toolName)) {
+				toolName = `${baseToolName}_${suffix}`;
+				suffix++;
+			}
+		}
+
 		const description = generateToolDescription(operation);
 		const inputSchema = generateToolInputSchema(operation);
 
@@ -86,6 +107,9 @@ export async function createApiServer(): Promise<McpServer> {
 			);
 
 		logger.log(`Registering tool: ${toolName} (${operation.method} ${operation.path})`);
+
+		//-- Track the tool name registration with operation details
+		registeredToolNames.set(toolName, { operationId, operation });
 
 		server.registerTool(
 			toolName,
