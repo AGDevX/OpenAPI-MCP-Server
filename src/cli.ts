@@ -14,10 +14,10 @@ program
 	.description('MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools')
 	.version(VERSION);
 
-//-- Default command: start MCP server
+//-- Serve command: start MCP server
 program
-	.command('serve', { isDefault: true })
-	.description('Start the MCP server (default command)')
+	.command('serve')
+	.description('Start the MCP server')
 	.action(async () => {
 		await startServer();
 	});
@@ -37,6 +37,11 @@ program
 			openBrowser
 		});
 	});
+
+//-- Default action when no command is specified
+program.action(async () => {
+	await startServer();
+});
 
 export async function runCli() {
 	await program.parseAsync(process.argv);
