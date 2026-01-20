@@ -64,6 +64,43 @@ After:   get_user_profile
 Description: "Get the current user profile"
 ```
 
+## Non-RESTful API Support
+
+Many APIs don't follow strict REST conventions. The server handles various naming patterns:
+
+### CamelCase and PascalCase Paths
+
+| Path | Tool Name | Description |
+|------|-----------|-------------|
+| `GET /getUser` | `get_user` | List users |
+| `POST /searchItems` | `search_items` | Search item |
+| `POST /calculateTax` | `calculate_tax` | Calculate tax |
+| `POST /CreateOrder` | `create_order` | Create order |
+
+### Kebab-Case Paths
+
+| Path | Tool Name | Description |
+|------|-----------|-------------|
+| `POST /calculate-tax` | `calculate_tax` | Calculate tax |
+| `POST /search-products` | `search_products` | Search product |
+
+### RPC-Style Paths (Action First)
+
+| Path | Tool Name | Description |
+|------|-----------|-------------|
+| `POST /user/get` | `get_user` | Get user |
+| `POST /payment/process` | `process_payment` | Process payment |
+
+### How It Works
+
+The server intelligently:
+1. **Parses camelCase/PascalCase** segments to extract action words (`searchItems` → `search` + `items`)
+2. **Parses kebab-case** segments (`calculate-tax` → `calculate` + `tax`)
+3. **Detects action word prefixes** (`getUser` starts with `get`)
+4. **Converts to snake_case** for consistency
+
+**Note:** Deeply nested paths like `/UserManagement/GetUserById` become `user_management_get_user_by_id`. While verbose, this preserves the full context which may be useful for complex APIs.
+
 ## Smart POST Operation Handling
 
 POST requests aren't always "create" operations! The server intelligently detects when POST is used for:
@@ -87,7 +124,7 @@ POST requests aren't always "create" operations! The server intelligently detect
 | `POST /users/{id}/activate` | `activate_user` | Activate user |
 | `POST /reports/export` | `export_report` | Export report |
 
-The server recognizes **60+ common action words** including: search, query, filter, calculate, validate, process, activate, cancel, export, enroll, transfer, merge, certify, upsert, and many more.
+The server recognizes **70+ common action words** including: search, query, filter, calculate, validate, process, activate, cancel, export, enroll, transfer, merge, certify, upsert, publish, fulfill, persist, receive, resend, print, request, associate, and many more.
 
 ## How It Works
 

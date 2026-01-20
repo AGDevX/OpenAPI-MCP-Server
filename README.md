@@ -244,8 +244,9 @@ Tools are automatically named in an intuitive, friendly way:
 The server intelligently:
 - Converts camelCase operationIds to snake_case (`getUserProfile` → `get_user_profile`)
 - Generates friendly names from HTTP method + resource path
+- **Handles non-RESTful APIs**: Parses camelCase (`/searchItems`), kebab-case (`/calculate-tax`), and RPC-style paths
 - Recognizes POST operations: `POST /users/search` → `search_user` (not `create`)
-- Detects **60+ action words**: search, query, filter, calculate, validate, activate, export, enroll, transfer, merge, certify, upsert, etc.
+- Detects **70+ action words**: search, query, filter, calculate, validate, activate, export, enroll, transfer, merge, certify, upsert, publish, fulfill, persist, receive, etc.
 - Singularizes resource names (users → user, categories → category)
 - Shows required parameters in descriptions
 

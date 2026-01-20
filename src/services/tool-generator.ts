@@ -165,10 +165,12 @@ const ACTION_WORDS = [
 	'add',
 	'approve',
 	'archive',
+	'associate',
 	'calculate',
 	'cancel',
 	'capture',
 	'certify',
+	'change',
 	'check',
 	'cleanse',
 	'compute',
@@ -180,6 +182,7 @@ const ACTION_WORDS = [
 	'dismiss',
 	'download',
 	'edit',
+	'email',
 	'enable',
 	'enqueue',
 	'enroll',
@@ -187,25 +190,35 @@ const ACTION_WORDS = [
 	'export',
 	'filter',
 	'find',
+	'fulfill',
 	'generate',
 	'get',
 	'import',
 	'insert',
 	'invoke',
 	'link',
+	'list',
 	'log',
 	'lookup',
 	'make',
 	'merge',
 	'move',
+	'persist',
+	'pledge',
+	'print',
 	'process',
+	'publish',
 	'query',
 	'queue',
+	'receive',
 	'refresh',
 	'register',
 	'reject',
 	'remove',
+	'reprint',
+	'request',
 	'reset',
+	'resend',
 	'resolve',
 	'restore',
 	'run',
@@ -214,12 +227,15 @@ const ACTION_WORDS = [
 	'send',
 	'set',
 	'stage',
+	'stay',
 	'submit',
 	'suggest',
 	'sync',
 	'transfer',
 	'trigger',
 	'unarchive',
+	'undo',
+	'unlink',
 	'update',
 	'upload',
 	'upsert',
@@ -228,18 +244,54 @@ const ACTION_WORDS = [
 	'waive'
 ];
 
+//-- Split a camelCase or PascalCase string into words
+function splitCamelCase(str: string): string[] {
+	//-- Insert spaces before uppercase letters, then split
+	return str
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+		.split(/\s+/)
+		.map((s) => s.toLowerCase());
+}
+
 //-- Extract action word from path (e.g., /users/search, /calculate, /items/{id}/activate)
+//-- Also handles non-RESTful paths like /getUser, /calculate-tax, /SearchItems
 function extractActionFromPath(path: string): string | null {
 	//-- Split path and get segments without parameters
-	const segments = path
-		.split('/')
-		.filter((s) => s.length > 0 && !s.startsWith('{'))
-		.map((s) => s.toLowerCase());
+	const segments = path.split('/').filter((s) => s.length > 0 && !s.startsWith('{'));
 
 	//-- Check each segment for known action words
 	for (const segment of segments) {
-		if (ACTION_WORDS.includes(segment)) {
-			return segment;
+		const lowerSegment = segment.toLowerCase();
+
+		//-- 1. Check exact match (e.g., "search", "calculate")
+		if (ACTION_WORDS.includes(lowerSegment)) {
+			return lowerSegment;
+		}
+
+		//-- 2. Check kebab-case (e.g., "calculate-tax" → ["calculate", "tax"])
+		if (segment.includes('-')) {
+			const kebabParts = segment.split('-').map((s) => s.toLowerCase());
+			for (const part of kebabParts) {
+				if (ACTION_WORDS.includes(part)) {
+					return part;
+				}
+			}
+		}
+
+		//-- 3. Check camelCase/PascalCase (e.g., "searchItems" → ["search", "items"])
+		const camelWords = splitCamelCase(segment);
+		for (const word of camelWords) {
+			if (ACTION_WORDS.includes(word)) {
+				return word;
+			}
+		}
+
+		//-- 4. Check if segment starts with action word (e.g., "searching", "calculated")
+		for (const action of ACTION_WORDS) {
+			if (lowerSegment.startsWith(action)) {
+				return action;
+			}
 		}
 	}
 
@@ -277,6 +329,7 @@ function getFriendlyAction(method: string, path: string): string {
 }
 
 //-- Extract resource name from path (e.g., /api/v1/users/{id} → "user")
+//-- Also handles non-RESTful paths like /searchItems → "items", /calculate-tax → "tax"
 function extractResourceName(path: string): string {
 	//-- Remove path parameters like {id}, {userId}, etc.
 	const cleanPath = path.replace(/\{[^}]+\}/g, '');
@@ -288,31 +341,51 @@ function extractResourceName(path: string): string {
 		return 'resource';
 	}
 
-	//-- Remove known action words from the end to get the resource
-	const lastSegment = segments[segments.length - 1].toLowerCase();
-	if (ACTION_WORDS.includes(lastSegment)) {
+	let resource = segments[segments.length - 1];
+
+	//-- 1. Check if last segment is an exact action word
+	const lastSegmentLower = resource.toLowerCase();
+	if (ACTION_WORDS.includes(lastSegmentLower)) {
 		//-- If the last segment is an action word, try to get the previous segment as the resource
 		if (segments.length > 1) {
-			segments = segments.slice(0, -1);
+			resource = segments[segments.length - 2];
 		} else {
 			//-- Path is just an action (e.g., /api/v1/calculate)
-			return lastSegment;
+			return lastSegmentLower;
 		}
 	}
 
-	//-- Get the last segment and singularize if needed
-	let resource = segments[segments.length - 1];
+	//-- 2. Handle kebab-case (e.g., "calculate-tax" → "tax", "search-products" → "products")
+	if (resource.includes('-')) {
+		const kebabParts = resource.split('-');
+		//-- Check if first part is an action word
+		if (ACTION_WORDS.includes(kebabParts[0].toLowerCase())) {
+			//-- Remove action and join the rest
+			resource = kebabParts.slice(1).join('-');
+		}
+	}
 
-	//-- Simple singularization (remove trailing 's' for common cases)
-	if (resource.endsWith('ies')) {
+	//-- 3. Handle camelCase/PascalCase (e.g., "searchItems" → "items", "GetUser" → "user")
+	const camelWords = splitCamelCase(resource);
+	if (camelWords.length > 1) {
+		//-- Check if first word is an action
+		if (ACTION_WORDS.includes(camelWords[0])) {
+			//-- Remove action and join the rest
+			resource = camelWords.slice(1).join('');
+		}
+	}
+
+	//-- 4. Simple singularization (remove trailing 's' for common cases)
+	const lowerResource = resource.toLowerCase();
+	if (lowerResource.endsWith('ies')) {
 		resource = resource.slice(0, -3) + 'y'; //-- categories → category
-	} else if (resource.endsWith('es') && resource.length > 2) {
+	} else if (lowerResource.endsWith('es') && resource.length > 2) {
 		resource = resource.slice(0, -2); //-- addresses → address
-	} else if (resource.endsWith('s') && resource.length > 1) {
+	} else if (lowerResource.endsWith('s') && resource.length > 1) {
 		resource = resource.slice(0, -1); //-- users → user
 	}
 
-	return resource;
+	return resource.toLowerCase();
 }
 
 //-- Generate a friendly tool name from operation details
@@ -374,13 +447,16 @@ export function generateFriendlyToolName(operation: ApiOperation): string {
 	return sanitizeToolName(friendlyName);
 }
 
-//-- Convert camelCase or PascalCase to snake_case
+//-- Convert camelCase, PascalCase, or kebab-case to snake_case
 function camelToSnakeCase(str: string): string {
+	//-- First, convert hyphens to underscores (kebab-case → snake_case)
+	let result = str.replace(/-/g, '_');
+
 	//-- Insert underscore before uppercase letters (except at start)
-	const snake = str.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+	result = result.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 
 	//-- Clean up any double underscores or leading/trailing underscores
-	return snake.replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+	return result.replace(/_+/g, '_').replace(/^_+|_+$/g, '');
 }
 
 //-- Sanitize operation ID to be a valid tool name
