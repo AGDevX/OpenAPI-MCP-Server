@@ -5,6 +5,7 @@ Turn any OpenAPI specification into MCP tools for AI assistants. Point it at you
 ## Features
 
 - **Dynamic Tool Generation** - Automatically creates MCP tools from OpenAPI 3.0/3.1 specifications
+- **Friendly Tool Names** - Smart naming: `post_api_v1_users` → `create_user` with helpful descriptions
 - **Multi-Environment Support** - Switch between dev, qa, and prod environments per-request
 - **Live Spec Refresh** - Update tools without restarting
 - **Rate Limiting** - Built-in protection with configurable request limits
@@ -224,6 +225,32 @@ Ask Claude:
 - "Check server status"
 
 ## Features
+
+### Friendly Tool Names & Descriptions
+
+Tools are automatically named in an intuitive, friendly way:
+
+- `post_api_v1_users` → **`create_user`**
+- `get_api_v1_users` → **`list_users`**
+- `get_api_v1_users_id` → **`get_user`**
+- `put_api_v1_users_id` → **`update_user`**
+- `delete_api_v1_users_id` → **`delete_user`**
+
+**Enhanced descriptions** include required parameters:
+- "Create a new user. Requires: name, email, body."
+- "Get a single user. Requires: id."
+- "List users"
+
+The server intelligently:
+- Converts camelCase operationIds to snake_case (`getUserProfile` → `get_user_profile`)
+- Generates friendly names from HTTP method + resource path
+- **Handles non-RESTful APIs**: Parses camelCase (`/searchItems`), kebab-case (`/calculate-tax`), and RPC-style paths
+- Recognizes POST operations: `POST /users/search` → `search_user` (not `create`)
+- Detects **70+ action words**: search, query, filter, calculate, validate, activate, export, enroll, transfer, merge, certify, upsert, publish, fulfill, persist, receive, etc.
+- Singularizes resource names (users → user, categories → category)
+- Shows required parameters in descriptions
+
+See [FRIENDLY_NAMES.md](./FRIENDLY_NAMES.md) for detailed examples and how it works.
 
 ### Multiple Environments
 

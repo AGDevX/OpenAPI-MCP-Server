@@ -127,6 +127,7 @@ export function generateToolInputSchema(operation: ApiOperation): Record<string,
 export function generateToolDescription(operation: ApiOperation): string {
 	const parts: string[] = [];
 
+	//-- Main description
 	if (operation.summary) {
 		parts.push(operation.summary);
 	} else if (operation.description) {
@@ -134,11 +135,328 @@ export function generateToolDescription(operation: ApiOperation): string {
 		const firstLine = operation.description.split('\n')[0];
 		parts.push(firstLine);
 	} else {
-		//-- Fallback to method and path
-		parts.push(`${operation.method} ${operation.path}`);
+		//-- Fallback: Generate description from method and path
+		const friendlyAction = getFriendlyAction(operation.method, operation.path);
+		parts.push(friendlyAction);
+	}
+
+	//-- Add required parameters info
+	const requiredParams = operation.parameters.filter((p) => p.required === true);
+	const hasRequiredBody = operation.requestBody && 'required' in operation.requestBody && operation.requestBody.required === true;
+
+	if (requiredParams.length > 0 || hasRequiredBody) {
+		const paramNames = requiredParams.map((p) => p.name);
+		if (hasRequiredBody) {
+			paramNames.push('body');
+		}
+		//-- Ensure first part ends with period before adding "Requires"
+		if (parts.length > 0 && !parts[0].endsWith('.')) {
+			parts[0] = parts[0] + '.';
+		}
+		parts.push(`Requires: ${paramNames.join(', ')}.`);
 	}
 
 	return parts.join(' ');
+}
+
+//-- Common action words found in API paths
+const ACTION_WORDS = [
+	'activate',
+	'add',
+	'approve',
+	'archive',
+	'associate',
+	'calculate',
+	'cancel',
+	'capture',
+	'certify',
+	'change',
+	'check',
+	'cleanse',
+	'compute',
+	'confirm',
+	'create',
+	'deactivate',
+	'delete',
+	'disable',
+	'dismiss',
+	'download',
+	'edit',
+	'email',
+	'enable',
+	'enqueue',
+	'enroll',
+	'execute',
+	'export',
+	'filter',
+	'find',
+	'fulfill',
+	'generate',
+	'get',
+	'import',
+	'insert',
+	'invoke',
+	'link',
+	'list',
+	'log',
+	'lookup',
+	'make',
+	'merge',
+	'move',
+	'persist',
+	'pledge',
+	'print',
+	'process',
+	'publish',
+	'query',
+	'queue',
+	'receive',
+	'refresh',
+	'register',
+	'reject',
+	'remove',
+	'reprint',
+	'request',
+	'reset',
+	'resend',
+	'resolve',
+	'restore',
+	'run',
+	'save',
+	'search',
+	'send',
+	'set',
+	'stage',
+	'stay',
+	'submit',
+	'suggest',
+	'sync',
+	'transfer',
+	'trigger',
+	'unarchive',
+	'undo',
+	'unlink',
+	'update',
+	'upload',
+	'upsert',
+	'validate',
+	'verify',
+	'waive'
+];
+
+//-- Split a camelCase or PascalCase string into words
+function splitCamelCase(str: string): string[] {
+	//-- Insert spaces before uppercase letters, then split
+	return str
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+		.split(/\s+/)
+		.map((s) => s.toLowerCase());
+}
+
+//-- Extract action word from path (e.g., /users/search, /calculate, /items/{id}/activate)
+//-- Also handles non-RESTful paths like /getUser, /calculate-tax, /SearchItems
+function extractActionFromPath(path: string): string | null {
+	//-- Split path and get segments without parameters
+	const segments = path.split('/').filter((s) => s.length > 0 && !s.startsWith('{'));
+
+	//-- Check each segment for known action words
+	for (const segment of segments) {
+		const lowerSegment = segment.toLowerCase();
+
+		//-- 1. Check exact match (e.g., "search", "calculate")
+		if (ACTION_WORDS.includes(lowerSegment)) {
+			return lowerSegment;
+		}
+
+		//-- 2. Check kebab-case (e.g., "calculate-tax" → ["calculate", "tax"])
+		if (segment.includes('-')) {
+			const kebabParts = segment.split('-').map((s) => s.toLowerCase());
+			for (const part of kebabParts) {
+				if (ACTION_WORDS.includes(part)) {
+					return part;
+				}
+			}
+		}
+
+		//-- 3. Check camelCase/PascalCase (e.g., "searchItems" → ["search", "items"])
+		const camelWords = splitCamelCase(segment);
+		for (const word of camelWords) {
+			if (ACTION_WORDS.includes(word)) {
+				return word;
+			}
+		}
+
+		//-- 4. Check if segment starts with action word (e.g., "searching", "calculated")
+		for (const action of ACTION_WORDS) {
+			if (lowerSegment.startsWith(action)) {
+				return action;
+			}
+		}
+	}
+
+	return null;
+}
+
+//-- Get friendly action description from method and path
+function getFriendlyAction(method: string, path: string): string {
+	const upperMethod = method.toUpperCase();
+	const resource = extractResourceName(path);
+	const action = extractActionFromPath(path);
+
+	switch (upperMethod) {
+		case 'GET':
+			return path.includes('{') ? `Get a single ${resource}` : `List ${resource}s`;
+		case 'POST':
+			//-- Check if path contains an action word
+			if (action) {
+				//-- If resource is the same as action, path is just an action (e.g., /calculate)
+				if (resource === action) {
+					return action.charAt(0).toUpperCase() + action.slice(1);
+				}
+				return `${action.charAt(0).toUpperCase() + action.slice(1)} ${resource}`;
+			}
+			//-- Default to "create" only for base resource paths without actions
+			return `Create a new ${resource}`;
+		case 'PUT':
+		case 'PATCH':
+			return `Update a ${resource}`;
+		case 'DELETE':
+			return `Delete a ${resource}`;
+		default:
+			return `${method} ${path}`;
+	}
+}
+
+//-- Extract resource name from path (e.g., /api/v1/users/{id} → "user")
+//-- Also handles non-RESTful paths like /searchItems → "items", /calculate-tax → "tax"
+function extractResourceName(path: string): string {
+	//-- Remove path parameters like {id}, {userId}, etc.
+	const cleanPath = path.replace(/\{[^}]+\}/g, '');
+
+	//-- Split by / and get the last meaningful segment
+	let segments = cleanPath.split('/').filter((s) => s.length > 0 && s !== 'api' && !s.match(/^v\d+$/));
+
+	if (segments.length === 0) {
+		return 'resource';
+	}
+
+	let resource = segments[segments.length - 1];
+
+	//-- 1. Check if last segment is an exact action word
+	const lastSegmentLower = resource.toLowerCase();
+	if (ACTION_WORDS.includes(lastSegmentLower)) {
+		//-- If the last segment is an action word, try to get the previous segment as the resource
+		if (segments.length > 1) {
+			resource = segments[segments.length - 2];
+		} else {
+			//-- Path is just an action (e.g., /api/v1/calculate)
+			return lastSegmentLower;
+		}
+	}
+
+	//-- 2. Handle kebab-case (e.g., "calculate-tax" → "tax", "search-products" → "products")
+	if (resource.includes('-')) {
+		const kebabParts = resource.split('-');
+		//-- Check if first part is an action word
+		if (ACTION_WORDS.includes(kebabParts[0].toLowerCase())) {
+			//-- Remove action and join the rest
+			resource = kebabParts.slice(1).join('-');
+		}
+	}
+
+	//-- 3. Handle camelCase/PascalCase (e.g., "searchItems" → "items", "GetUser" → "user")
+	const camelWords = splitCamelCase(resource);
+	if (camelWords.length > 1) {
+		//-- Check if first word is an action
+		if (ACTION_WORDS.includes(camelWords[0])) {
+			//-- Remove action and join the rest
+			resource = camelWords.slice(1).join('');
+		}
+	}
+
+	//-- 4. Simple singularization (remove trailing 's' for common cases)
+	const lowerResource = resource.toLowerCase();
+	if (lowerResource.endsWith('ies')) {
+		resource = resource.slice(0, -3) + 'y'; //-- categories → category
+	} else if (lowerResource.endsWith('es') && resource.length > 2) {
+		resource = resource.slice(0, -2); //-- addresses → address
+	} else if (lowerResource.endsWith('s') && resource.length > 1) {
+		resource = resource.slice(0, -1); //-- users → user
+	}
+
+	return resource.toLowerCase();
+}
+
+//-- Generate a friendly tool name from operation details
+export function generateFriendlyToolName(operation: ApiOperation): string {
+	//-- If operationId exists and looks friendly (not auto-generated), use it
+	const operationId = operation.operationId;
+
+	//-- Check if operationId looks auto-generated (contains method_path pattern)
+	const isAutoGenerated =
+		!operationId ||
+		operationId.toLowerCase().startsWith(operation.method.toLowerCase() + '_') ||
+		operationId.includes('api_v') ||
+		/^(get|post|put|patch|delete)_.*_/.test(operationId.toLowerCase());
+
+	if (!isAutoGenerated) {
+		//-- operationId looks manually created, convert from camelCase to snake_case
+		return camelToSnakeCase(operationId);
+	}
+
+	//-- Generate friendly name from method + path
+	const method = operation.method.toUpperCase();
+	const resource = extractResourceName(operation.path);
+	const hasPathParam = operation.path.includes('{');
+	const action = extractActionFromPath(operation.path);
+
+	let friendlyName = '';
+
+	switch (method) {
+		case 'GET':
+			friendlyName = hasPathParam ? `get_${resource}` : `list_${resource}s`;
+			break;
+		case 'POST':
+			//-- Use action word if found in path (e.g., /users/search → search_users)
+			if (action) {
+				//-- If resource is the same as action, path is just an action (e.g., /calculate)
+				if (resource === action) {
+					friendlyName = action;
+				} else {
+					friendlyName = `${action}_${resource}`;
+				}
+			} else {
+				//-- Default to "create" for base resource paths
+				friendlyName = `create_${resource}`;
+			}
+			break;
+		case 'PUT':
+			friendlyName = `update_${resource}`;
+			break;
+		case 'PATCH':
+			friendlyName = `patch_${resource}`;
+			break;
+		case 'DELETE':
+			friendlyName = `delete_${resource}`;
+			break;
+		default:
+			friendlyName = `${method.toLowerCase()}_${resource}`;
+	}
+
+	return sanitizeToolName(friendlyName);
+}
+
+//-- Convert camelCase, PascalCase, or kebab-case to snake_case
+function camelToSnakeCase(str: string): string {
+	//-- First, convert hyphens to underscores (kebab-case → snake_case)
+	let result = str.replace(/-/g, '_');
+
+	//-- Insert underscore before uppercase letters (except at start)
+	result = result.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+
+	//-- Clean up any double underscores or leading/trailing underscores
+	return result.replace(/_+/g, '_').replace(/^_+|_+$/g, '');
 }
 
 //-- Sanitize operation ID to be a valid tool name

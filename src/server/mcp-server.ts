@@ -1,6 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { EnvironmentManager } from '../services/environment-manager.js';
-import { generateToolInputSchema, generateToolDescription, sanitizeToolName } from '../services/tool-generator.js';
+import {
+	generateToolInputSchema,
+	generateToolDescription,
+	generateFriendlyToolName,
+	sanitizeToolName
+} from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
 import { RateLimiter } from '../services/rate-limiter.js';
 import { logger } from '../utils/logger.js';
@@ -67,7 +72,7 @@ export async function createApiServer(): Promise<McpServer> {
 			return;
 		}
 
-		const toolName = sanitizeToolName(operationId);
+		const toolName = generateFriendlyToolName(operation);
 		const description = generateToolDescription(operation);
 		const inputSchema = generateToolInputSchema(operation);
 
@@ -439,7 +444,7 @@ All existing tools have been updated to use the latest spec. No new operations w
 			const currentOperations = await currentService.getOperations();
 
 			const operationToolsList = currentOperations
-				.map((op) => `- ${sanitizeToolName(op.operationId)}: ${op.method} ${op.path}${op.summary ? ' - ' + op.summary : ''}`)
+				.map((op) => `- ${generateFriendlyToolName(op)}: ${op.method} ${op.path}${op.summary ? ' - ' + op.summary : ''}`)
 				.join('\n');
 
 			//-- Add management tools to the list
