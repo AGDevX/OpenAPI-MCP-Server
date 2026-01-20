@@ -23,7 +23,7 @@ async function main() {
 	const hasCliArgs = process.argv.length > 2;
 
 	if (hasCliArgs) {
-		//-- Run CLI (handles commands like 'config-ui', 'serve', '--help', etc.)
+		//-- Run CLI (handles commands like 'setup', 'serve', '--help', etc.)
 		await runCli();
 	} else {
 		//-- No arguments: start MCP server directly (original behavior)

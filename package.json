@@ -1,6 +1,6 @@
 {
 	"name": "agdevx-openapi-mcp-server",
-	"version": "0.0.6",
+	"version": "0.0.8",
 	"description": "MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools for MCP clients",
 	"author": "AGDevX",
 	"license": "MIT",
@@ -18,7 +18,8 @@
 		"node": ">=18.0.0"
 	},
 	"scripts": {
-		"build": "rimraf dist && tsc",
+		"build": "rimraf dist && tsc && npm run copy-assets",
+		"copy-assets": "node -e \"require('fs').cpSync('src/setup/ui.html', 'dist/setup/ui.html')\"",
 		"start": "node dist/index.js",
 		"dev": "tsx src/index.ts",
 		"watch": "tsc --watch",

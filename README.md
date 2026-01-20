@@ -9,14 +9,14 @@ Turn any OpenAPI specification into MCP tools for AI assistants. Point it at you
 - **Live Spec Refresh** - Update tools without restarting
 - **Rate Limiting** - Built-in protection with configurable request limits
 - **Two Transport Methods** - stdio (easiest) or HTTP (Docker)
-- **Easy Configuration UI** - Web-based wizard for non-technical users
+- **Easy Setup Wizard** - Web-based wizard for non-technical users
 
-## Quick Start: Configuration UI
+## Quick Start: Setup Wizard
 
-The easiest way to configure this server is through the web-based configuration UI:
+The easiest way to configure this server is through the web-based setup wizard:
 
 ```bash
-npx agdevx-openapi-mcp-server config-ui
+npx agdevx-openapi-mcp-server setup
 ```
 
 This launches a browser-based wizard that:
@@ -35,10 +35,10 @@ This launches a browser-based wizard that:
 **Options:**
 ```bash
 # Custom port
-npx agdevx-openapi-mcp-server config-ui --port 3001
+npx agdevx-openapi-mcp-server setup --port 3001
 
 # Don't auto-open browser
-npx agdevx-openapi-mcp-server config-ui --no-open
+npx agdevx-openapi-mcp-server setup --no-open
 ```
 
 After configuring, restart your MCP client and the server will be available.

@@ -16,13 +16,13 @@ import type {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export interface ConfigUIOptions {
+export interface SetupOptions {
 	port?: number;
 	openBrowser?: boolean;
 }
 
-//-- Create and configure Express app for config UI
-export function createConfigUIApp(): express.Application {
+//-- Create and configure Express app for setup
+export function createSetupApp(): express.Application {
 	const app = express();
 
 	//-- Middleware
@@ -186,19 +186,19 @@ export function createConfigUIApp(): express.Application {
 	return app;
 }
 
-//-- Start config UI server
-export async function startConfigUI(options: ConfigUIOptions = {}): Promise<void> {
+//-- Start setup server
+export async function startSetup(options: SetupOptions = {}): Promise<void> {
 	const port = options.port || 3000;
 	const openBrowser = options.openBrowser !== false; //-- Default: true
 
-	const app = createConfigUIApp();
+	const app = createSetupApp();
 
 	return new Promise((resolve) => {
 		const server = app.listen(port, async () => {
 			const url = `http://localhost:${port}`;
 
 			console.log('');
-			console.log('🚀 AGDevX OpenAPI MCP Server - Configuration UI');
+			console.log('🚀 AGDevX OpenAPI MCP Server - Setup Wizard');
 			console.log('');
 			console.log(`   Open your browser to: ${url}`);
 			console.log('');
