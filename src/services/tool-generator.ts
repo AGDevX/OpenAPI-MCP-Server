@@ -459,6 +459,83 @@ function camelToSnakeCase(str: string): string {
 	return result.replace(/_+/g, '_').replace(/^_+|_+$/g, '');
 }
 
+//-- Extract version identifier from a path (e.g., /api/v1/users -> v1, /v2/items -> v2)
+function extractVersionFromPath(path: string): string | null {
+	//-- Match common version patterns: v1, v2, v3, v1.0, v2.1, etc.
+	const versionMatch = path.match(/\/(v\d+(?:\.\d+)?)\//i);
+	if (versionMatch) {
+		return versionMatch[1].toLowerCase();
+	}
+	return null;
+}
+
+//-- Extract unique path segments that differentiate this path from others
+function extractUniquePathSegments(path: string): string[] {
+	return path
+		.split('/')
+		.filter((segment) => {
+			//-- Filter out common/generic segments
+			const lower = segment.toLowerCase();
+			return (
+				segment.length > 0 &&
+				!segment.startsWith('{') && //-- Skip path parameters
+				lower !== 'api' &&
+				lower !== 'apis' &&
+				!lower.match(/^v\d+$/) //-- Skip simple version numbers (captured separately)
+			);
+		})
+		.map((s) => s.toLowerCase());
+}
+
+//-- Generate a unique tool name by adding a meaningful suffix based on operation differences
+export function generateUniqueToolName(baseName: string, operation: ApiOperation, existingOperation: ApiOperation): string {
+	//-- Strategy 1: Check for version differences in paths
+	const version = extractVersionFromPath(operation.path);
+	const existingVersion = extractVersionFromPath(existingOperation.path);
+
+	if (version && existingVersion && version !== existingVersion) {
+		return `${baseName}_${version}`;
+	} else if (version) {
+		return `${baseName}_${version}`;
+	}
+
+	//-- Strategy 2: Use operationId if it's different and looks meaningful
+	if (
+		operation.operationId &&
+		existingOperation.operationId &&
+		operation.operationId !== existingOperation.operationId
+	) {
+		//-- Extract last part of operationId if it's camelCase/PascalCase
+		const operationIdParts = splitCamelCase(operation.operationId);
+		if (operationIdParts.length > 0) {
+			const uniquePart = operationIdParts[operationIdParts.length - 1];
+			if (uniquePart && uniquePart !== baseName.split('_').pop()) {
+				return `${baseName}_${uniquePart}`;
+			}
+		}
+	}
+
+	//-- Strategy 3: Find unique path segments
+	const segments = extractUniquePathSegments(operation.path);
+	const existingSegments = extractUniquePathSegments(existingOperation.path);
+
+	//-- Find segments that exist in one but not the other
+	for (const segment of segments) {
+		if (!existingSegments.includes(segment) && segment !== baseName.split('_').pop()) {
+			return `${baseName}_${segment}`;
+		}
+	}
+
+	//-- Strategy 4: Include HTTP method if paths are different but names collide
+	if (operation.path !== existingOperation.path) {
+		const method = operation.method.toLowerCase();
+		return `${baseName}_${method}`;
+	}
+
+	//-- Fallback: Use numeric suffix
+	return `${baseName}_alt`;
+}
+
 //-- Sanitize operation ID to be a valid tool name
 export function sanitizeToolName(operationId: string): string {
 	//-- Replace non-alphanumeric characters with underscores
