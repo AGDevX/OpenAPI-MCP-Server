@@ -7,7 +7,7 @@ const program = new Command();
 //-- Get version from package.json
 //-- Note: In production, this would be imported from package.json
 //-- For now, we'll hardcode it to match the current version
-const VERSION = '0.0.13';
+const VERSION = '0.0.14';
 
 program
 	.name('agdevx-openapi-mcp-server')

@@ -1,6 +1,6 @@
 {
 	"name": "agdevx-openapi-mcp-server",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"description": "MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools for MCP clients",
 	"author": "AGDevX",
 	"license": "MIT",
