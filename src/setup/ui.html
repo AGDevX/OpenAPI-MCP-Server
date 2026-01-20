@@ -186,10 +186,7 @@
 
 								<div>
 									<label class="block text-gray-700 text-sm font-medium mb-1">TLS Certificate Verification</label>
-									<select
-										id="tls-reject-unauthorized"
-										class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-									>
+									<select id="tls-reject-unauthorized" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
 										<option value="">Default (Enabled - Secure)</option>
 										<option value="0">Disabled (For dev/testing only)</option>
 									</select>
@@ -199,7 +196,9 @@
 						</div>
 					</div>
 
-					<button onclick="goToStep(2)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+					<div class="flex justify-end mt-6">
+						<button onclick="goToStep(2)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+					</div>
 				</div>
 
 				<!-- Step 2: Environment Configuration -->
@@ -280,9 +279,7 @@
 						>
 							Auto-Update Config Files
 						</button>
-						<p class="text-sm text-gray-500 mt-2">
-							This will backup existing configs and update all selected MCP clients automatically.
-						</p>
+						<p class="text-sm text-gray-500 mt-2">This will backup existing configs and update all selected MCP clients automatically.</p>
 					</div>
 
 					<div id="save-result" class="hidden"></div>
@@ -316,6 +313,31 @@
 				} else {
 					section.classList.add('hidden');
 					toggle.textContent = '▼';
+				}
+			}
+
+			// Open config file path in file explorer/editor
+			async function openConfigPath(path, event) {
+				event.stopPropagation(); // Prevent checkbox toggle
+				event.preventDefault();
+
+				try {
+					const response = await fetch('/api/open-config', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ path })
+					});
+
+					const result = await response.json();
+
+					if (!result.success) {
+						console.error('Failed to open config location:', result.error || 'Unknown error');
+					}
+					// Success - folder should open automatically
+				} catch (error) {
+					console.error('Failed to open config location:', error.message);
 				}
 			}
 
@@ -549,10 +571,16 @@
                          data-client="${client.type}" onclick="toggleClient('${client.type}')">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                <input type="checkbox" id="checkbox-${client.type}" value="${client.type}" class="mr-3 w-5 h-5">
-                                <div>
+                                <input type="checkbox" id="checkbox-${client.type}" value="${client.type}" class="mr-3 w-5 h-5" onclick="event.stopPropagation(); toggleClient('${client.type}')">
+                                <div class="flex-1">
                                     <h4 class="font-semibold">${clientNames[client.type]}</h4>
-                                    <p class="text-sm text-gray-600">${client.path}</p>
+                                    <p class="text-sm text-gray-600">
+                                        <a href="#" onclick="openConfigPath('${client.path.replace(/\\/g, '\\\\')}', event)"
+                                           class="text-blue-600 hover:text-blue-800"
+                                           title="Click to open config location">
+                                            📁 ${client.path}
+                                        </a>
+                                    </p>
                                 </div>
                             </div>
                             <div class="text-sm ${client.found ? 'text-green-600' : 'text-gray-400'}">
@@ -573,17 +601,19 @@
 				const checkbox = document.getElementById(`checkbox-${clientType}`);
 				const clientDiv = document.querySelector(`[data-client="${clientType}"]`);
 
-				// Toggle checkbox
-				checkbox.checked = !checkbox.checked;
+				// Toggle checkbox only if called from parent div (not from checkbox itself)
+				if (event && event.target !== checkbox) {
+					checkbox.checked = !checkbox.checked;
+				}
 
-				// Update selected clients array
+				// Update selected clients array based on checkbox state
 				if (checkbox.checked) {
 					if (!selectedClients.includes(clientType)) {
 						selectedClients.push(clientType);
 					}
 					clientDiv.classList.add('border-blue-500', 'bg-blue-50');
 				} else {
-					selectedClients = selectedClients.filter(c => c !== clientType);
+					selectedClients = selectedClients.filter((c) => c !== clientType);
 					clientDiv.classList.remove('border-blue-500', 'bg-blue-50');
 				}
 
@@ -604,7 +634,7 @@
 				const defaultEnvironment = environments[defaultEnvIndex].name;
 
 				const clientNames = {
-					'vscode': 'VS Code',
+					vscode: 'VS Code',
 					'claude-desktop': 'Claude Desktop',
 					'claude-code': 'Claude Code'
 				};
@@ -614,14 +644,17 @@
                 <p><strong>Server Name:</strong> ${serverName}</p>
                 <p><strong>Default Environment:</strong> ${defaultEnvironment}</p>
                 <p><strong>Environments:</strong> ${environments.map((e) => e.name).join(', ')}</p>
-                <p><strong>Target Clients:</strong> ${selectedClients.map(c => clientNames[c]).join(', ')}</p>
+                <p><strong>Target Clients:</strong> ${selectedClients.map((c) => clientNames[c]).join(', ')}</p>
             `;
 
 				// Add advanced settings to summary if any are configured
 				if (Object.keys(advancedSettings).length > 0) {
 					summary += `<p class="mt-3"><strong>Advanced Settings:</strong></p><ul class="text-sm text-gray-700 ml-4">`;
 					Object.entries(advancedSettings).forEach(([key, value]) => {
-						const label = key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+						const label = key
+							.replace(/_/g, ' ')
+							.toLowerCase()
+							.replace(/\b\w/g, (l) => l.toUpperCase());
 						summary += `<li>${label}: ${value}</li>`;
 					});
 					summary += `</ul>`;
@@ -633,8 +666,9 @@
 				const container = document.getElementById('config-outputs-container');
 				container.innerHTML = '';
 
-				selectedClients.forEach(clientType => {
+				selectedClients.forEach((clientType) => {
 					const clientName = clientNames[clientType];
+					const clientPath = detectedClients.find((c) => c.type === clientType)?.path || '';
 					const config = generateConfigObject(serverName, environments, defaultEnvironment, clientType);
 					const configJson = JSON.stringify(config, null, 2);
 
@@ -643,7 +677,15 @@
 					section.className = 'border border-gray-200 rounded-lg overflow-hidden';
 					section.innerHTML = `
 						<div class="bg-gray-100 px-4 py-2 border-b border-gray-200">
-							<h4 class="font-semibold text-gray-800">${clientName}</h4>
+							<div class="flex items-center justify-between">
+								<h4 class="font-semibold text-gray-800">${clientName}</h4>
+								<a href="#" onclick="openConfigPath('${clientPath.replace(/\\/g, '\\\\')}', event)"
+								   class="text-sm text-blue-600 hover:text-blue-800"
+								   title="Click to open config location">
+									📁 Open config location
+								</a>
+							</div>
+							<p class="text-xs text-gray-600 mt-1">${clientPath}</p>
 						</div>
 						<div class="bg-gray-900 text-gray-100 p-4 overflow-auto max-h-80">
 							<pre class="text-sm" id="config-output-${clientType}">${configJson}</pre>
@@ -740,7 +782,7 @@
 				resultDiv.classList.remove('hidden');
 
 				const clientNames = {
-					'vscode': 'VS Code',
+					vscode: 'VS Code',
 					'claude-desktop': 'Claude Desktop',
 					'claude-code': 'Claude Code'
 				};
@@ -766,7 +808,7 @@
 					}
 
 					// Display results
-					const successCount = results.filter(r => r.success).length;
+					const successCount = results.filter((r) => r.success).length;
 					const failureCount = results.length - successCount;
 
 					let html = '<div class="space-y-4">';
@@ -774,12 +816,14 @@
 					if (successCount > 0) {
 						html += '<div class="bg-green-50 border border-green-300 rounded-lg p-4">';
 						html += `<h4 class="font-semibold text-green-800 mb-2">Success! (${successCount}/${results.length} clients)</h4>`;
-						results.filter(r => r.success).forEach(result => {
-							html += `<p class="text-green-700 text-sm">✓ <strong>${result.clientName}:</strong> <code class="bg-green-100 px-2 py-1 rounded">${result.path}</code></p>`;
-							if (result.backedUp) {
-								html += '<p class="text-xs text-green-600 ml-4">Previous config backed up</p>';
-							}
-						});
+						results
+							.filter((r) => r.success)
+							.forEach((result) => {
+								html += `<p class="text-green-700 text-sm">✓ <strong>${result.clientName}:</strong> <code class="bg-green-100 px-2 py-1 rounded">${result.path}</code></p>`;
+								if (result.backedUp) {
+									html += '<p class="text-xs text-green-600 ml-4">Previous config backed up</p>';
+								}
+							});
 						html += '<p class="text-sm text-gray-600 mt-4">Next steps:</p>';
 						html += '<ol class="text-sm text-gray-700 list-decimal ml-5 mt-2">';
 						html += '<li>Restart your MCP clients (VS Code, Claude Desktop, etc.)</li>';
@@ -791,10 +835,13 @@
 					if (failureCount > 0) {
 						html += '<div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">';
 						html += `<h4 class="font-semibold text-yellow-800 mb-2">Some Clients Failed (${failureCount}/${results.length})</h4>`;
-						results.filter(r => !r.success).forEach(result => {
-							html += `<p class="text-yellow-700 text-sm">✗ <strong>${result.clientName}:</strong> ${result.error}</p>`;
-						});
-						html += '<p class="text-sm text-gray-600 mt-2">You can use the "Copy to Clipboard" buttons above to manually update failed clients.</p>';
+						results
+							.filter((r) => !r.success)
+							.forEach((result) => {
+								html += `<p class="text-yellow-700 text-sm">✗ <strong>${result.clientName}:</strong> ${result.error}</p>`;
+							});
+						html +=
+							'<p class="text-sm text-gray-600 mt-2">You can use the "Copy to Clipboard" buttons above to manually update failed clients.</p>';
 						html += '</div>';
 					}
 

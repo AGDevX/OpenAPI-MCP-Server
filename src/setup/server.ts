@@ -183,6 +183,29 @@ export function createSetupApp(): express.Application {
 		}
 	});
 
+	//-- API: Open config file location
+	app.post('/api/open-config', async (req, res) => {
+		try {
+			const { path: configPath } = req.body;
+
+			if (!configPath || typeof configPath !== 'string') {
+				return res.status(400).json({ success: false, error: 'Valid path is required' });
+			}
+
+			//-- Open the file/folder
+			//-- On Windows, this will open File Explorer to the folder
+			//-- On Mac/Linux, this will open Finder/file manager
+			await open(path.dirname(configPath));
+
+			res.json({ success: true });
+		} catch (error) {
+			res.status(500).json({
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to open config location'
+			});
+		}
+	});
+
 	return app;
 }
 

@@ -22,9 +22,9 @@ export function getConfigPath(clientType: McpClientType): string {
 			linux: path.join(homeDir, '.config', 'Claude', 'claude_desktop_config.json')
 		},
 		'claude-code': {
-			win32: path.join(homeDir, 'claude.json'),
-			darwin: path.join(homeDir, 'claude.json'),
-			linux: path.join(homeDir, 'claude.json')
+			win32: path.join(homeDir, '.claude.json'),
+			darwin: path.join(homeDir, '.claude.json'),
+			linux: path.join(homeDir, '.claude.json')
 		}
 	};
 
