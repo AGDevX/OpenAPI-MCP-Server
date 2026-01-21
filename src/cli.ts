@@ -1,13 +1,13 @@
 import { Command } from 'commander';
+import { createRequire } from 'module';
 import { startSetup } from './setup/server.js';
 import { startServer } from './server.js';
 
-const program = new Command();
+const require = createRequire(import.meta.url);
+const packageJson = require('../package.json');
+const VERSION = packageJson.version;
 
-//-- Get version from package.json
-//-- Note: In production, this would be imported from package.json
-//-- For now, we'll hardcode it to match the current version
-const VERSION = '0.0.14';
+const program = new Command();
 
 program
 	.name('agdevx-openapi-mcp-server')
