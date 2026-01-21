@@ -21,12 +21,16 @@ Tests are organized in a separate `tests/` directory that mirrors the `src/` str
 
 ```
 tests/
-├── config.test.ts                    # Configuration parsing tests
+├── config.test.ts                           # Configuration parsing tests
 ├── services/
-│   ├── rate-limiter.test.ts         # Rate limiter logic tests
-│   └── tool-generator.test.ts       # Tool name generation tests
+│   ├── environment-manager.test.ts          # Environment configuration tests
+│   ├── open-api-service.test.ts             # OpenAPI service tests
+│   ├── rate-limiter.test.ts                 # Rate limiter logic tests
+│   ├── session-manager.test.ts              # Session management tests
+│   └── tool-generator.test.ts               # Tool name generation tests
 └── setup/
-    └── validator.test.ts             # URL validation tests
+    ├── config-manager.test.ts               # MCP client config management tests
+    └── validator.test.ts                    # URL validation tests
 ```
 
 ## Writing Tests
@@ -79,14 +83,53 @@ it('should handle time-based logic', () => {
 });
 ```
 
+### Advanced Module Mocking
+
+For testing modules that depend on Node.js built-ins (fs, os, etc.), use `jest.unstable_mockModule`:
+
+```typescript
+// Mock modules BEFORE importing the module under test
+jest.unstable_mockModule('fs/promises', () => ({
+	default: {
+		readFile: jest.fn(),
+		writeFile: jest.fn()
+	}
+}));
+
+// Import mocked modules
+const fsMock = (await import('fs/promises')).default;
+
+// Import the module under test
+const { functionToTest } = await import('../../src/module.js');
+
+// Now you can control the mock behavior in tests
+fsMock.readFile.mockResolvedValue('data');
+```
+
+**Important:** When testing cross-platform path logic on Windows, normalize paths for comparison:
+
+```typescript
+function normalizePath(p: string): string {
+	return p.replace(/\\/g, '/');
+}
+
+expect(normalizePath(result)).toBe('/expected/path');
+```
+
 ## Test Coverage
 
-The project aims for good test coverage on core business logic:
+The project has comprehensive test coverage on core business logic:
 
-- **tool-generator.ts**: ~51% coverage (core tool naming logic)
-- **rate-limiter.ts**: 100% coverage
-- **config.ts**: ~62% coverage (configuration parsing)
-- **validator.ts**: Basic error case coverage
+- **tool-generator.ts**: ~51% coverage (core tool naming logic with 26 tests)
+- **rate-limiter.ts**: 100% coverage (12 tests)
+- **config.ts**: ~62% coverage (11 tests)
+- **validator.ts**: Basic error case coverage (5 tests)
+- **session-manager.ts**: Core functionality coverage (11 tests)
+- **environment-manager.ts**: Environment handling tests (14 tests)
+- **open-api-service.ts**: Constructor and URL validation (15 tests)
+- **config-manager.ts**: MCP client config management (29 tests)
+
+**Total: 131 tests across 8 test suites**
 
 Coverage reports are generated in the `coverage/` directory when running `npm run test:coverage`.
 
@@ -98,14 +141,18 @@ Tests currently focus on:
 2. **Rate Limiting** - Verifying sliding window rate limiting works correctly
 3. **Configuration** - Checking that environment variables are parsed correctly
 4. **Validation** - Testing URL format validation and error handling
+5. **Session Management** - Testing transport lifecycle management and cleanup
+6. **Environment Management** - Testing multi-environment configuration handling
+7. **OpenAPI Service** - Testing service initialization and URL handling
+8. **Config Manager** - Testing MCP client configuration file management across platforms
 
 ## Areas for Future Testing
 
 - Integration tests for the full MCP server
 - End-to-end tests with real OpenAPI specs
-- More comprehensive mocking for validator tests
-- Environment manager tests
-- OpenAPI service tests with mock specs
+- More comprehensive mocking for validator tests with API responses
+- OpenAPI service tests with mock OpenAPI specifications
+- Server initialization and tool registration tests
 
 ## Notes
 
