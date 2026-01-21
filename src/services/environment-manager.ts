@@ -1,5 +1,5 @@
 import { OpenApiService } from './open-api-service.js';
-import { ENVIRONMENT_CONFIG, OPENAPI_CONFIG } from '../config.js';
+import { ENVIRONMENT_CONFIG } from '../config.js';
 import { logger } from '../utils/logger.js';
 
 //-- Manages multiple OpenAPI service instances for different environments

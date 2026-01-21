@@ -40,7 +40,7 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 			zodSchema = z.boolean();
 			break;
 
-		case 'array':
+		case 'array': {
 			const itemSchema = schema.items ? schemaToZod(schema.items as SchemaObject, true) : z.any();
 			zodSchema = z.array(itemSchema);
 			if (schema.minItems !== undefined) {
@@ -50,6 +50,7 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 				zodSchema = (zodSchema as z.ZodArray<any>).max(schema.maxItems);
 			}
 			break;
+		}
 
 		case 'object':
 			if (schema.properties) {
@@ -335,7 +336,7 @@ function extractResourceName(path: string): string {
 	const cleanPath = path.replace(/\{[^}]+\}/g, '');
 
 	//-- Split by / and get the last meaningful segment
-	let segments = cleanPath.split('/').filter((s) => s.length > 0 && s !== 'api' && !s.match(/^v\d+$/));
+	const segments = cleanPath.split('/').filter((s) => s.length > 0 && s !== 'api' && !s.match(/^v\d+$/));
 
 	if (segments.length === 0) {
 		return 'resource';

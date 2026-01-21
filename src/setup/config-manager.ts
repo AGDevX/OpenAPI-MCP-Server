@@ -57,7 +57,7 @@ export async function readConfig(clientType: McpClientType): Promise<any | null>
 		const configPath = getConfigPath(clientType);
 		const content = await fs.readFile(configPath, 'utf-8');
 		return JSON.parse(content);
-	} catch (error) {
+	} catch {
 		return null;
 	}
 }

@@ -4,8 +4,7 @@ import {
 	generateToolInputSchema,
 	generateToolDescription,
 	generateFriendlyToolName,
-	generateUniqueToolName,
-	sanitizeToolName
+	generateUniqueToolName
 } from '../services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
 import { RateLimiter } from '../services/rate-limiter.js';

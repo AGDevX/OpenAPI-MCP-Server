@@ -171,7 +171,7 @@ describe('EnvironmentManager', () => {
 				expect(info).toHaveProperty('apiVersion');
 				expect(info).toHaveProperty('baseUrl');
 				expect(info).toHaveProperty('operationsCount');
-			} catch (error) {
+			} catch {
 				// Test environment may not have API access, that's okay
 				console.log('Skipping getEnvironmentInfo validation - API not accessible');
 			}

@@ -415,6 +415,47 @@ docker-compose down && docker-compose up -d
 MCP_VERBOSE=true
 ```
 
+## Development
+
+### Running Tests
+
+The project includes comprehensive unit tests using Jest:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
+
+### Linting
+
+ESLint is configured for TypeScript with recommended rules:
+
+```bash
+# Check for linting issues
+npm run lint
+
+# Auto-fix linting issues
+npm run lint:fix
+```
+
+### Building
+
+```bash
+# Build TypeScript to JavaScript
+npm run build
+
+# Watch mode for development
+npm run watch
+```
+
 ## Feature enhancements
 
 - Whitelists and blacklists: Only allow specific endpoints to be called, or explicitly prevent specific endpoints to be called.

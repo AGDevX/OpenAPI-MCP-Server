@@ -7,7 +7,6 @@ import { detectClients, readConfig, writeConfig, getConfigPath } from './config-
 import { generateConfig } from './templates.js';
 import type {
 	ValidateUrlRequest,
-	GetConfigRequest,
 	SaveConfigRequest,
 	McpClientType,
 	SaveConfigResponse
@@ -232,7 +231,7 @@ export async function startSetup(options: SetupOptions = {}): Promise<void> {
 			if (openBrowser) {
 				try {
 					await open(url);
-				} catch (error) {
+				} catch {
 					console.log('   Could not open browser automatically. Please open the URL manually.');
 				}
 			}

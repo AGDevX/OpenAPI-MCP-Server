@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { OpenApiService } from '../../src/services/open-api-service.js';
-import type { ApiOperation } from '../../src/services/open-api-service.js';
 
 describe('OpenApiService', () => {
 	describe('constructor', () => {
