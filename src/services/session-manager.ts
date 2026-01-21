@@ -1,5 +1,7 @@
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
+import { logger } from '@utils/logger.js';
+
 export class SessionManager {
 	private transports: Record<string, StreamableHTTPServerTransport> = {};
 
@@ -21,7 +23,7 @@ export class SessionManager {
 				await this.transports[sessionId].close();
 				delete this.transports[sessionId];
 			} catch (error) {
-				console.error(`Error closing transport for session ${sessionId}:`, error);
+				logger.error(`Error closing transport for session ${sessionId}:`, error);
 			}
 		}
 	}

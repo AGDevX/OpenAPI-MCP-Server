@@ -69,7 +69,7 @@ export function createMcpHttpApp(): Express {
 			//-- Handle the request with existing transport
 			await transport.handleRequest(req, res, req.body);
 		} catch (error) {
-			console.error('Error handling MCP request:', error);
+			logger.error('Error handling MCP request:', error);
 			if (!res.headersSent) {
 				res.status(500).json({
 					jsonrpc: '2.0',
