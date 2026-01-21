@@ -24,9 +24,8 @@ const fsMock = (await import('fs/promises')).default as any;
 const osMock = (await import('os')).default as any;
 
 // Import the module under test
-const { getConfigPath, configExists, readConfig, writeConfig, detectClients } = await import(
-	'../../src/setup/config-manager.js'
-);
+const { getConfigPath, configExists, readConfig, writeConfig, detectClients } =
+	await import('../../src/setup/config-manager.js');
 
 // Helper function to normalize paths for cross-platform testing
 function normalizePath(p: string): string {

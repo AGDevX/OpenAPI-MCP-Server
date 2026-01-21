@@ -1,0 +1,16 @@
+# Build outputs
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Config files that shouldn't be reformatted
+package-lock.json
+*.min.js
+
+# Generated files
+*.d.ts
+
+# Logs
+*.log

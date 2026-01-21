@@ -3,13 +3,9 @@ import open from 'open';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { detectClients, getConfigPath,readConfig, writeConfig } from './config-manager.js';
+import { detectClients, getConfigPath, readConfig, writeConfig } from './config-manager.js';
 import { generateConfig } from './templates.js';
-import type {
-	McpClientType,
-	SaveConfigRequest,
-	SaveConfigResponse,
-	ValidateUrlRequest} from './types.js';
+import type { McpClientType, SaveConfigRequest, SaveConfigResponse, ValidateUrlRequest } from './types.js';
 import { validateOpenApiUrl } from './validator.js';
 
 const __filename = fileURLToPath(import.meta.url);

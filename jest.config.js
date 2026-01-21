@@ -18,7 +18,14 @@ export default {
 		]
 	},
 	testMatch: ['**/tests/**/*.test.ts'],
-	collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/**/*.test.ts', '!src/index.ts', '!src/cli.ts', '!src/setup/**/*.ts'],
+	collectCoverageFrom: [
+		'src/**/*.ts',
+		'!src/**/*.d.ts',
+		'!src/**/*.test.ts',
+		'!src/index.ts',
+		'!src/cli.ts',
+		'!src/setup/**/*.ts'
+	],
 	coverageDirectory: 'coverage',
 	coverageReporters: ['text', 'lcov', 'html'],
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']

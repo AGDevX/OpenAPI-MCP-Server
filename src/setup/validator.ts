@@ -39,7 +39,8 @@ export async function validateOpenApiUrl(url: string): Promise<ValidateUrlRespon
 		if (!spec.openapi && !(spec as any).swagger) {
 			return {
 				valid: false,
-				error: 'URL does not return a valid OpenAPI/Swagger specification. Ensure the URL points to an OpenAPI JSON or YAML file.'
+				error:
+					'URL does not return a valid OpenAPI/Swagger specification. Ensure the URL points to an OpenAPI JSON or YAML file.'
 			};
 		}
 

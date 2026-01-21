@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { Express,Request, Response } from 'express';
+import { Express, Request, Response } from 'express';
 
 import { SessionManager } from '@services/session-manager.js';
 import { logger } from '@utils/logger.js';

@@ -1,10 +1,12 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import prettierConfig from 'eslint-config-prettier';
 
 export default tseslint.config(
 	eslint.configs.recommended,
 	...tseslint.configs.recommended,
+	prettierConfig,
 	{
 		plugins: {
 			'simple-import-sort': simpleImportSort
@@ -51,13 +53,6 @@ export default tseslint.config(
 		}
 	},
 	{
-		ignores: [
-			'dist/**',
-			'coverage/**',
-			'node_modules/**',
-			'*.config.js',
-			'jest.config.js',
-			'eslint.config.js'
-		]
+		ignores: ['dist/**', 'coverage/**', 'node_modules/**', '*.config.js', 'jest.config.js', 'eslint.config.js']
 	}
 );

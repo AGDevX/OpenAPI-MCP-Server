@@ -29,7 +29,11 @@ export function generateEnvironmentVars(
 }
 
 //-- Generate config for VS Code (mcp.json)
-export function generateVSCodeConfig(serverName: string, environments: EnvironmentConfig[], defaultEnvironment: string) {
+export function generateVSCodeConfig(
+	serverName: string,
+	environments: EnvironmentConfig[],
+	defaultEnvironment: string
+) {
 	const envVars = generateEnvironmentVars(environments, defaultEnvironment);
 
 	return {

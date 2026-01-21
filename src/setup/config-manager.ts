@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 
 import { generateConfig } from './templates.js';
-import type { EnvironmentConfig,McpClientType } from './types.js';
+import type { EnvironmentConfig, McpClientType } from './types.js';
 
 //-- Get platform-specific config file path for MCP clients
 export function getConfigPath(clientType: McpClientType): string {

@@ -372,7 +372,7 @@ Use this to:
 ```yaml
 # Change in docker-compose.yml
 ports:
-  - '3002:3000' # Use different port
+ - '3002:3000' # Use different port
 ```
 
 **Container won't start:**
@@ -433,18 +433,6 @@ npm run test:coverage
 ```
 
 See [TESTING.md](TESTING.md) for detailed testing documentation.
-
-### Linting
-
-ESLint is configured for TypeScript with recommended rules:
-
-```bash
-# Check for linting issues
-npm run lint
-
-# Auto-fix linting issues
-npm run lint:fix
-```
 
 ### Building
 

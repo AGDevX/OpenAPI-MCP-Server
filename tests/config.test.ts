@@ -1,6 +1,6 @@
-import { describe, expect,it } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
-import { OPENAPI_CONFIG, RATE_LIMIT_CONFIG, RESOURCES,SERVER_CONFIG } from '../src/config.js';
+import { OPENAPI_CONFIG, RATE_LIMIT_CONFIG, RESOURCES, SERVER_CONFIG } from '../src/config.js';
 
 describe('config', () => {
 	describe('SERVER_CONFIG', () => {

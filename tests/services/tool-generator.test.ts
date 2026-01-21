@@ -1,4 +1,4 @@
-import { describe, expect,it } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import type { ApiOperation } from '../../src/services/open-api-service.js';
 import {

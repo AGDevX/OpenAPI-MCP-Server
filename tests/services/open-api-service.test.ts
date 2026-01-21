@@ -1,4 +1,4 @@
-import { beforeEach,describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from '@jest/globals';
 
 import { OpenApiService } from '../../src/services/open-api-service.js';
 

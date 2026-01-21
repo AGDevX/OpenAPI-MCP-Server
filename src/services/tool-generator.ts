@@ -144,7 +144,8 @@ export function generateToolDescription(operation: ApiOperation): string {
 
 	//-- Add required parameters info
 	const requiredParams = operation.parameters.filter((p) => p.required === true);
-	const hasRequiredBody = operation.requestBody && 'required' in operation.requestBody && operation.requestBody.required === true;
+	const hasRequiredBody =
+		operation.requestBody && 'required' in operation.requestBody && operation.requestBody.required === true;
 
 	if (requiredParams.length > 0 || hasRequiredBody) {
 		const paramNames = requiredParams.map((p) => p.name);
@@ -490,7 +491,11 @@ function extractUniquePathSegments(path: string): string[] {
 }
 
 //-- Generate a unique tool name by adding a meaningful suffix based on operation differences
-export function generateUniqueToolName(baseName: string, operation: ApiOperation, existingOperation: ApiOperation): string {
+export function generateUniqueToolName(
+	baseName: string,
+	operation: ApiOperation,
+	existingOperation: ApiOperation
+): string {
 	//-- Strategy 1: Check for version differences in paths
 	const version = extractVersionFromPath(operation.path);
 	const existingVersion = extractVersionFromPath(existingOperation.path);
