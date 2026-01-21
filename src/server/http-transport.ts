@@ -4,8 +4,8 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createApiServer } from './mcp-server.js';
-import { SessionManager } from '../services/session-manager.js';
-import { logger } from '../utils/logger.js';
+import { SessionManager } from '@services/session-manager.js';
+import { logger } from '@utils/logger.js';
 
 //-- Create and configure the Express app with MCP HTTP transport handlers
 export function createMcpHttpApp(): Express {

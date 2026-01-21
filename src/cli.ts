@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { createRequire } from 'module';
-import { startSetup } from './setup/server.js';
+import { startSetup } from '@setup/server.js';
 import { startServer } from './server.js';
 
 const require = createRequire(import.meta.url);

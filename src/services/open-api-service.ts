@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import https from 'https';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import { OPENAPI_CONFIG } from '../config.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '@utils/logger.js';
 
 type OpenAPIDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
 type OperationObject = OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject;

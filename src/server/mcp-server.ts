@@ -1,14 +1,14 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { EnvironmentManager } from '../services/environment-manager.js';
+import { EnvironmentManager } from '@services/environment-manager.js';
 import {
 	generateToolInputSchema,
 	generateToolDescription,
 	generateFriendlyToolName,
 	generateUniqueToolName
-} from '../services/tool-generator.js';
+} from '@services/tool-generator.js';
 import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
-import { RateLimiter } from '../services/rate-limiter.js';
-import { logger } from '../utils/logger.js';
+import { RateLimiter } from '@services/rate-limiter.js';
+import { logger } from '@utils/logger.js';
 import { z } from 'zod';
 
 //-- Factory function to create and configure a new MCP server instance

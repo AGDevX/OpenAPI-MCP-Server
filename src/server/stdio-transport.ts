@@ -1,6 +1,6 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createApiServer } from './mcp-server.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '@utils/logger.js';
 
 //-- Create and start the MCP server with stdio transport
 export async function startStdioServer(): Promise<void> {

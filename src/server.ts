@@ -1,9 +1,9 @@
 //-- MCP Server startup logic (extracted from index.ts)
 
-import { createMcpHttpApp } from './server/http-transport.js';
-import { startStdioServer } from './server/stdio-transport.js';
+import { createMcpHttpApp } from '@server/http-transport.js';
+import { startStdioServer } from '@server/stdio-transport.js';
 import { SERVER_CONFIG, ENVIRONMENT_CONFIG } from './config.js';
-import { logger } from './utils/logger.js';
+import { logger } from '@utils/logger.js';
 
 //-- Determine which transport to use
 function getTransport(): 'stdio' | 'http' {

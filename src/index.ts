@@ -3,7 +3,7 @@
 import { OPENAPI_CONFIG } from './config.js';
 import { runCli } from './cli.js';
 import { startServer } from './server.js';
-import { logger } from './utils/logger.js';
+import { logger } from '@utils/logger.js';
 
 //-- Configure TLS certificate verification based on user settings
 //-- Default: true (secure) - reject unauthorized certificates
