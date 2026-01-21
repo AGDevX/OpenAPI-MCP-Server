@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, it } from '@jest/globals';
+
 import { EnvironmentManager } from '../../src/services/environment-manager.js';
 
 // Note: EnvironmentManager depends on global ENVIRONMENT_CONFIG which is set at module load time
@@ -171,7 +172,7 @@ describe('EnvironmentManager', () => {
 				expect(info).toHaveProperty('apiVersion');
 				expect(info).toHaveProperty('baseUrl');
 				expect(info).toHaveProperty('operationsCount');
-			} catch (error) {
+			} catch {
 				// Test environment may not have API access, that's okay
 				console.log('Skipping getEnvironmentInfo validation - API not accessible');
 			}

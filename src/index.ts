@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-import { OPENAPI_CONFIG } from './config.js';
+import { logger } from '@utils/logger.js';
+
 import { runCli } from './cli.js';
+import { OPENAPI_CONFIG } from './config.js';
 import { startServer } from './server.js';
-import { logger } from './utils/logger.js';
 
 //-- Configure TLS certificate verification based on user settings
 //-- Default: true (secure) - reject unauthorized certificates

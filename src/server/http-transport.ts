@@ -1,11 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { Request, Response, Express } from 'express';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import { Express, Request, Response } from 'express';
+
+import { SessionManager } from '@services/session-manager.js';
+import { logger } from '@utils/logger.js';
+
 import { createApiServer } from './mcp-server.js';
-import { SessionManager } from '../services/session-manager.js';
-import { logger } from '../utils/logger.js';
 
 //-- Create and configure the Express app with MCP HTTP transport handlers
 export function createMcpHttpApp(): Express {
@@ -66,7 +69,7 @@ export function createMcpHttpApp(): Express {
 			//-- Handle the request with existing transport
 			await transport.handleRequest(req, res, req.body);
 		} catch (error) {
-			console.error('Error handling MCP request:', error);
+			logger.error('Error handling MCP request:', error);
 			if (!res.headersSent) {
 				res.status(500).json({
 					jsonrpc: '2.0',

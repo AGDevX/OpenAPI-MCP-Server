@@ -1,16 +1,17 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { EnvironmentManager } from '../services/environment-manager.js';
-import {
-	generateToolInputSchema,
-	generateToolDescription,
-	generateFriendlyToolName,
-	generateUniqueToolName,
-	sanitizeToolName
-} from '../services/tool-generator.js';
-import { SERVER_CONFIG, RESOURCES, RATE_LIMIT_CONFIG } from '../config.js';
-import { RateLimiter } from '../services/rate-limiter.js';
-import { logger } from '../utils/logger.js';
 import { z } from 'zod';
+
+import { EnvironmentManager } from '@services/environment-manager.js';
+import { RateLimiter } from '@services/rate-limiter.js';
+import {
+	generateFriendlyToolName,
+	generateToolDescription,
+	generateToolInputSchema,
+	generateUniqueToolName
+} from '@services/tool-generator.js';
+import { logger } from '@utils/logger.js';
+
+import { RATE_LIMIT_CONFIG, RESOURCES, SERVER_CONFIG } from '../config.js';
 
 //-- Factory function to create and configure a new MCP server instance
 //-- Dynamically creates tools based on OpenAPI specification
@@ -26,7 +27,9 @@ export async function createApiServer(): Promise<McpServer> {
 		: null;
 
 	if (rateLimiter) {
-		logger.always(`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`);
+		logger.always(
+			`Rate limiting enabled: ${RATE_LIMIT_CONFIG.maxRequests} requests per ${RATE_LIMIT_CONFIG.windowMs / 1000} seconds`
+		);
 	} else {
 		logger.always('Rate limiting disabled');
 	}
@@ -414,7 +417,9 @@ All existing tools have been updated to use the latest spec. No new operations w
 				if (rateLimiter) {
 					const stats = rateLimiter.getStats();
 					const resetTime = Math.ceil((stats.windowMs - (Date.now() % stats.windowMs)) / 1000);
-					statusParts.push(`Rate Limit: ${stats.currentRequests}/${stats.maxRequests} requests used (resets in ${resetTime}s)`);
+					statusParts.push(
+						`Rate Limit: ${stats.currentRequests}/${stats.maxRequests} requests used (resets in ${resetTime}s)`
+					);
 				} else {
 					statusParts.push('Rate Limit: Disabled');
 				}

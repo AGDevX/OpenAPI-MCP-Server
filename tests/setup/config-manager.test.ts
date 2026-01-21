@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import path from 'path';
-import type { McpClientType, EnvironmentConfig } from '../../src/setup/types.js';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+import type { EnvironmentConfig } from '../../src/setup/types.js';
 
 // Mock modules before importing the module under test
 jest.unstable_mockModule('fs/promises', () => ({
@@ -24,9 +24,8 @@ const fsMock = (await import('fs/promises')).default as any;
 const osMock = (await import('os')).default as any;
 
 // Import the module under test
-const { getConfigPath, configExists, readConfig, writeConfig, detectClients } = await import(
-	'../../src/setup/config-manager.js'
-);
+const { getConfigPath, configExists, readConfig, writeConfig, detectClients } =
+	await import('../../src/setup/config-manager.js');
 
 // Helper function to normalize paths for cross-platform testing
 function normalizePath(p: string): string {

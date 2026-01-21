@@ -1,5 +1,6 @@
-import { z } from 'zod';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { z } from 'zod';
+
 import { ApiOperation } from './open-api-service.js';
 
 type ParameterObject = OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject;
@@ -40,7 +41,7 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 			zodSchema = z.boolean();
 			break;
 
-		case 'array':
+		case 'array': {
 			const itemSchema = schema.items ? schemaToZod(schema.items as SchemaObject, true) : z.any();
 			zodSchema = z.array(itemSchema);
 			if (schema.minItems !== undefined) {
@@ -50,6 +51,7 @@ function schemaToZod(schema: SchemaObject | undefined, isRequired: boolean = fal
 				zodSchema = (zodSchema as z.ZodArray<any>).max(schema.maxItems);
 			}
 			break;
+		}
 
 		case 'object':
 			if (schema.properties) {
@@ -142,7 +144,8 @@ export function generateToolDescription(operation: ApiOperation): string {
 
 	//-- Add required parameters info
 	const requiredParams = operation.parameters.filter((p) => p.required === true);
-	const hasRequiredBody = operation.requestBody && 'required' in operation.requestBody && operation.requestBody.required === true;
+	const hasRequiredBody =
+		operation.requestBody && 'required' in operation.requestBody && operation.requestBody.required === true;
 
 	if (requiredParams.length > 0 || hasRequiredBody) {
 		const paramNames = requiredParams.map((p) => p.name);
@@ -335,7 +338,7 @@ function extractResourceName(path: string): string {
 	const cleanPath = path.replace(/\{[^}]+\}/g, '');
 
 	//-- Split by / and get the last meaningful segment
-	let segments = cleanPath.split('/').filter((s) => s.length > 0 && s !== 'api' && !s.match(/^v\d+$/));
+	const segments = cleanPath.split('/').filter((s) => s.length > 0 && s !== 'api' && !s.match(/^v\d+$/));
 
 	if (segments.length === 0) {
 		return 'resource';
@@ -488,7 +491,11 @@ function extractUniquePathSegments(path: string): string[] {
 }
 
 //-- Generate a unique tool name by adding a meaningful suffix based on operation differences
-export function generateUniqueToolName(baseName: string, operation: ApiOperation, existingOperation: ApiOperation): string {
+export function generateUniqueToolName(
+	baseName: string,
+	operation: ApiOperation,
+	existingOperation: ApiOperation
+): string {
 	//-- Strategy 1: Check for version differences in paths
 	const version = extractVersionFromPath(operation.path);
 	const existingVersion = extractVersionFromPath(existingOperation.path);

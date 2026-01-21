@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
-import path from 'path';
 import os from 'os';
-import type { McpClientType, EnvironmentConfig } from './types.js';
+import path from 'path';
+
 import { generateConfig } from './templates.js';
+import type { EnvironmentConfig, McpClientType } from './types.js';
 
 //-- Get platform-specific config file path for MCP clients
 export function getConfigPath(clientType: McpClientType): string {
@@ -57,7 +58,7 @@ export async function readConfig(clientType: McpClientType): Promise<any | null>
 		const configPath = getConfigPath(clientType);
 		const content = await fs.readFile(configPath, 'utf-8');
 		return JSON.parse(content);
-	} catch (error) {
+	} catch {
 		return null;
 	}
 }

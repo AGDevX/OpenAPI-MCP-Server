@@ -1,17 +1,14 @@
 import express from 'express';
+import open from 'open';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import open from 'open';
-import { validateOpenApiUrl } from './validator.js';
-import { detectClients, readConfig, writeConfig, getConfigPath } from './config-manager.js';
+
+import { logger } from '@utils/logger.js';
+
+import { detectClients, getConfigPath, readConfig, writeConfig } from './config-manager.js';
 import { generateConfig } from './templates.js';
-import type {
-	ValidateUrlRequest,
-	GetConfigRequest,
-	SaveConfigRequest,
-	McpClientType,
-	SaveConfigResponse
-} from './types.js';
+import type { McpClientType, SaveConfigRequest, SaveConfigResponse, ValidateUrlRequest } from './types.js';
+import { validateOpenApiUrl } from './validator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -220,20 +217,20 @@ export async function startSetup(options: SetupOptions = {}): Promise<void> {
 		const server = app.listen(port, async () => {
 			const url = `http://localhost:${port}`;
 
-			console.log('');
-			console.log('🚀 AGDevX OpenAPI MCP Server - Setup Wizard');
-			console.log('');
-			console.log(`   Open your browser to: ${url}`);
-			console.log('');
-			console.log('   Press Ctrl+C to stop');
-			console.log('');
+			logger.always('');
+			logger.always('🚀 AGDevX OpenAPI MCP Server - Setup Wizard');
+			logger.always('');
+			logger.always(`   Open your browser to: ${url}`);
+			logger.always('');
+			logger.always('   Press Ctrl+C to stop');
+			logger.always('');
 
 			//-- Auto-open browser
 			if (openBrowser) {
 				try {
 					await open(url);
-				} catch (error) {
-					console.log('   Could not open browser automatically. Please open the URL manually.');
+				} catch {
+					logger.always('   Could not open browser automatically. Please open the URL manually.');
 				}
 			}
 
@@ -242,7 +239,7 @@ export async function startSetup(options: SetupOptions = {}): Promise<void> {
 
 		//-- Handle shutdown gracefully
 		process.on('SIGINT', () => {
-			console.log('\n\nShutting down...');
+			logger.always('\n\nShutting down...');
 			server.close(() => {
 				process.exit(0);
 			});

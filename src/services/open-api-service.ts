@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
 import https from 'https';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+
+import { logger } from '@utils/logger.js';
+
 import { OPENAPI_CONFIG } from '../config.js';
-import { logger } from '../utils/logger.js';
 
 type OpenAPIDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
 type OperationObject = OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject;
@@ -29,15 +31,13 @@ export class OpenApiService {
 	constructor(specUrl: string, baseUrl: string) {
 		if (!specUrl) {
 			throw new Error(
-				'API_SPEC_URL is required.\n\n' +
-					'Action required: Set API_SPEC_URL_{ENVIRONMENT} in your .env file'
+				'API_SPEC_URL is required.\n\n' + 'Action required: Set API_SPEC_URL_{ENVIRONMENT} in your .env file'
 			);
 		}
 
 		if (!baseUrl) {
 			throw new Error(
-				'API_BASE_URL is required.\n\n' +
-					'Action required: Set API_BASE_URL_{ENVIRONMENT} in your .env file'
+				'API_BASE_URL is required.\n\n' + 'Action required: Set API_BASE_URL_{ENVIRONMENT} in your .env file'
 			);
 		}
 
@@ -134,7 +134,11 @@ export class OpenApiService {
 		}
 
 		//-- Check if refresh is needed
-		if (OPENAPI_CONFIG.refreshInterval > 0 && this.lastFetch && Date.now() - this.lastFetch.getTime() > OPENAPI_CONFIG.refreshInterval) {
+		if (
+			OPENAPI_CONFIG.refreshInterval > 0 &&
+			this.lastFetch &&
+			Date.now() - this.lastFetch.getTime() > OPENAPI_CONFIG.refreshInterval
+		) {
 			logger.log('Refreshing OpenAPI spec...');
 			await this.fetchSpec();
 		}

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import https from 'https';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+
 import type { ValidateUrlResponse } from './types.js';
 
 type OpenAPIDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
@@ -38,7 +39,8 @@ export async function validateOpenApiUrl(url: string): Promise<ValidateUrlRespon
 		if (!spec.openapi && !(spec as any).swagger) {
 			return {
 				valid: false,
-				error: 'URL does not return a valid OpenAPI/Swagger specification. Ensure the URL points to an OpenAPI JSON or YAML file.'
+				error:
+					'URL does not return a valid OpenAPI/Swagger specification. Ensure the URL points to an OpenAPI JSON or YAML file.'
 			};
 		}
 

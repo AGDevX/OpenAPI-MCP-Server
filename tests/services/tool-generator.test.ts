@@ -1,11 +1,12 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+
+import type { ApiOperation } from '../../src/services/open-api-service.js';
 import {
 	generateFriendlyToolName,
-	generateUniqueToolName,
 	generateToolDescription,
+	generateUniqueToolName,
 	sanitizeToolName
 } from '../../src/services/tool-generator.js';
-import type { ApiOperation } from '../../src/services/open-api-service.js';
 
 describe('tool-generator', () => {
 	describe('sanitizeToolName', () => {

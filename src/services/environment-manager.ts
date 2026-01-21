@@ -1,6 +1,7 @@
-import { OpenApiService } from './open-api-service.js';
-import { ENVIRONMENT_CONFIG, OPENAPI_CONFIG } from '../config.js';
-import { logger } from '../utils/logger.js';
+import { OpenApiService } from '@services/open-api-service.js';
+import { logger } from '@utils/logger.js';
+
+import { ENVIRONMENT_CONFIG } from '../config.js';
 
 //-- Manages multiple OpenAPI service instances for different environments
 export class EnvironmentManager {
@@ -69,7 +70,9 @@ export class EnvironmentManager {
 									? 'The server is taking too long to respond. Check your API_TIMEOUT setting or network connection'
 									: 'Verify the API_SPEC_URL is correct and the endpoint returns a valid OpenAPI specification';
 
-						throw new Error(`Failed to initialize environment "${env}": ${error.message}\n\n` + `Action required: ${troubleshooting}`);
+						throw new Error(
+							`Failed to initialize environment "${env}": ${error.message}\n\n` + `Action required: ${troubleshooting}`
+						);
 					})
 			);
 		}

@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+
 import { RateLimiter } from '../../src/services/rate-limiter.js';
 
 describe('RateLimiter', () => {

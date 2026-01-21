@@ -14,6 +14,7 @@ The server intelligently generates tool names using the following priority:
 ### 📝 Enhanced Descriptions
 
 Descriptions are automatically enriched with:
+
 - Summary from the OpenAPI spec (if available)
 - Fallback to inferred action from HTTP method and path
 - **Required parameters** clearly listed at the end
@@ -23,6 +24,7 @@ Descriptions are automatically enriched with:
 ### Before and After
 
 #### Example 1: Creating a User
+
 ```
 Before:  post_api_v1_users
 After:   create_user
@@ -30,6 +32,7 @@ Description: "Create a new user. Requires: name, email, body."
 ```
 
 #### Example 2: Listing Users
+
 ```
 Before:  get_api_v1_users
 After:   list_users
@@ -37,6 +40,7 @@ Description: "List users"
 ```
 
 #### Example 3: Getting a Single User
+
 ```
 Before:  get_api_v1_users_id
 After:   get_user
@@ -44,6 +48,7 @@ Description: "Get a single user. Requires: id."
 ```
 
 #### Example 4: Updating a User
+
 ```
 Before:  put_api_v1_users_id
 After:   update_user
@@ -51,6 +56,7 @@ Description: "Update a user. Requires: id, body."
 ```
 
 #### Example 5: Deleting a User
+
 ```
 Before:  delete_api_v1_users_id
 After:   delete_user
@@ -58,6 +64,7 @@ Description: "Delete a user. Requires: id."
 ```
 
 #### Example 6: Manual operationId Preserved
+
 ```
 Before:  getUserProfile (manual operationId)
 After:   get_user_profile
@@ -70,30 +77,31 @@ Many APIs don't follow strict REST conventions. The server handles various namin
 
 ### CamelCase and PascalCase Paths
 
-| Path | Tool Name | Description |
-|------|-----------|-------------|
-| `GET /getUser` | `get_user` | List users |
-| `POST /searchItems` | `search_items` | Search item |
+| Path                 | Tool Name       | Description   |
+| -------------------- | --------------- | ------------- |
+| `GET /getUser`       | `get_user`      | List users    |
+| `POST /searchItems`  | `search_items`  | Search item   |
 | `POST /calculateTax` | `calculate_tax` | Calculate tax |
-| `POST /CreateOrder` | `create_order` | Create order |
+| `POST /CreateOrder`  | `create_order`  | Create order  |
 
 ### Kebab-Case Paths
 
-| Path | Tool Name | Description |
-|------|-----------|-------------|
-| `POST /calculate-tax` | `calculate_tax` | Calculate tax |
+| Path                    | Tool Name         | Description    |
+| ----------------------- | ----------------- | -------------- |
+| `POST /calculate-tax`   | `calculate_tax`   | Calculate tax  |
 | `POST /search-products` | `search_products` | Search product |
 
 ### RPC-Style Paths (Action First)
 
-| Path | Tool Name | Description |
-|------|-----------|-------------|
-| `POST /user/get` | `get_user` | Get user |
+| Path                    | Tool Name         | Description     |
+| ----------------------- | ----------------- | --------------- |
+| `POST /user/get`        | `get_user`        | Get user        |
 | `POST /payment/process` | `process_payment` | Process payment |
 
 ### How It Works
 
 The server intelligently:
+
 1. **Parses camelCase/PascalCase** segments to extract action words (`searchItems` → `search` + `items`)
 2. **Parses kebab-case** segments (`calculate-tax` → `calculate` + `tax`)
 3. **Detects action word prefixes** (`getUser` starts with `get`)
@@ -112,17 +120,17 @@ POST requests aren't always "create" operations! The server intelligently detect
 
 **Examples:**
 
-| Path | Tool Name | Description |
-|------|-----------|-------------|
-| `POST /users` | `create_user` | Create a new user |
-| `POST /users/search` | `search_user` | Search user |
-| `POST /products/query` | `query_product` | Query product |
-| `POST /items/filter` | `filter_item` | Filter item |
-| `POST /calculate` | `calculate` | Calculate |
-| `POST /validate` | `validate` | Validate |
-| `POST /orders/process` | `process_order` | Process order |
-| `POST /users/{id}/activate` | `activate_user` | Activate user |
-| `POST /reports/export` | `export_report` | Export report |
+| Path                        | Tool Name       | Description       |
+| --------------------------- | --------------- | ----------------- |
+| `POST /users`               | `create_user`   | Create a new user |
+| `POST /users/search`        | `search_user`   | Search user       |
+| `POST /products/query`      | `query_product` | Query product     |
+| `POST /items/filter`        | `filter_item`   | Filter item       |
+| `POST /calculate`           | `calculate`     | Calculate         |
+| `POST /validate`            | `validate`      | Validate          |
+| `POST /orders/process`      | `process_order` | Process order     |
+| `POST /users/{id}/activate` | `activate_user` | Activate user     |
+| `POST /reports/export`      | `export_report` | Export report     |
 
 The server recognizes **70+ common action words** including: search, query, filter, calculate, validate, process, activate, cancel, export, enroll, transfer, merge, certify, upsert, publish, fulfill, persist, receive, resend, print, request, associate, and many more.
 
@@ -168,14 +176,16 @@ The server recognizes **70+ common action words** including: search, query, filt
 To get the best results:
 
 1. **Add summaries** to your OpenAPI operations
+
    ```yaml
    /users:
-     post:
-       summary: "Create a new user account"
-       operationId: createUser
+    post:
+     summary: 'Create a new user account'
+     operationId: createUser
    ```
 
 2. **Use meaningful operationIds** (optional but recommended)
+
    ```yaml
    operationId: getUserProfile  # ✅ Good
    operationId: get_user_profile  # ✅ Also good
@@ -185,9 +195,9 @@ To get the best results:
 3. **Mark required parameters** correctly
    ```yaml
    parameters:
-     - name: id
-       in: path
-       required: true  # Shows in description
+    - name: id
+      in: path
+      required: true # Shows in description
    ```
 
 The server works great even without these - but they make the experience even better!

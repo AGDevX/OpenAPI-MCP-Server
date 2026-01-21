@@ -372,7 +372,7 @@ Use this to:
 ```yaml
 # Change in docker-compose.yml
 ports:
-  - '3002:3000' # Use different port
+ - '3002:3000' # Use different port
 ```
 
 **Container won't start:**
@@ -413,6 +413,35 @@ docker-compose down && docker-compose up -d
 
 ```bash
 MCP_VERBOSE=true
+```
+
+## Development
+
+### Running Tests
+
+The project includes comprehensive unit tests using Jest:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
+
+### Building
+
+```bash
+# Build TypeScript to JavaScript
+npm run build
+
+# Watch mode for development
+npm run watch
 ```
 
 ## Feature enhancements
