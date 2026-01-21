@@ -214,8 +214,23 @@ Add to config file:
 
 ### Docker (HTTP Transport)
 
-For any client, if using Docker instead of npx:
+**Note:** HTTP transport is only supported by VS Code and Claude Desktop. Claude Code does not support HTTP transport.
 
+For VS Code or Claude Desktop, if using Docker instead of npx:
+
+**VS Code (mcp.json):**
+```json
+{
+	"servers": {
+		"my-api": {
+			"type": "http",
+			"url": "http://localhost:3001/mcp"
+		}
+	}
+}
+```
+
+**Claude Desktop (claude_desktop_config.json):**
 ```json
 {
 	"mcpServers": {
@@ -226,6 +241,8 @@ For any client, if using Docker instead of npx:
 	}
 }
 ```
+
+**Claude Code:** Docker/HTTP transport is not supported. Use `npx` with stdio transport instead (see Claude Code section above).
 
 ### Testing
 

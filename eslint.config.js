@@ -2,12 +2,18 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import prettierConfig from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default tseslint.config(
 	eslint.configs.recommended,
 	...tseslint.configs.recommended,
 	prettierConfig,
 	{
+		languageOptions: {
+			globals: {
+				...globals.node
+			}
+		},
 		plugins: {
 			'simple-import-sort': simpleImportSort
 		},
