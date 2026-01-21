@@ -3,6 +3,10 @@ export default {
 	testEnvironment: 'node',
 	extensionsToTreatAsEsm: ['.ts'],
 	moduleNameMapper: {
+		'^@server/(.*)\\.(js|ts)$': '<rootDir>/src/server/$1',
+		'^@services/(.*)\\.(js|ts)$': '<rootDir>/src/services/$1',
+		'^@setup/(.*)\\.(js|ts)$': '<rootDir>/src/setup/$1',
+		'^@utils/(.*)\\.(js|ts)$': '<rootDir>/src/utils/$1',
 		'^(\\.{1,2}/.*)\\.js$': '$1'
 	},
 	transform: {
