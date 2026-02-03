@@ -5,7 +5,7 @@ FROM node:alpine
 LABEL org.opencontainers.image.title="AGDevX OpenAPI MCP Server"
 LABEL org.opencontainers.image.description="MCP Server that dynamically exposes OpenAPI/Swagger specifications as tools"
 LABEL org.opencontainers.image.vendor="AGDevX"
-LABEL org.opencontainers.image.version="0.0.24"
+LABEL org.opencontainers.image.version="0.0.25"
 LABEL org.opencontainers.image.source="https://github.com/AGDevX/agdevx-openapi-mcp-server"
 
 # Set working directory

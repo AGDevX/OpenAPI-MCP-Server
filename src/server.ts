@@ -37,15 +37,14 @@ export async function startServer() {
 		logger.error('Please configure at least one environment:');
 		logger.error('');
 		logger.error('Example - Single environment:');
-		logger.error('  ENVIRONMENTS=prod');
-		logger.error('  API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json');
+		logger.error('  ENVIRONMENTS=dev');
+		logger.error('  API_SPEC_URL_DEV=https://dev-api.example.com/openapi/v1.json');
 		logger.error('');
 		logger.error('Example - Multiple environments:');
-		logger.error('  ENVIRONMENTS=dev,qa,prod');
+		logger.error('  ENVIRONMENTS=dev,qa');
 		logger.error('  DEFAULT_ENVIRONMENT=dev');
 		logger.error('  API_SPEC_URL_DEV=https://dev-api.example.com/openapi/v1.json');
 		logger.error('  API_SPEC_URL_QA=https://qa-api.example.com/openapi/v1.json');
-		logger.error('  API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json');
 		process.exit(1);
 	}
 

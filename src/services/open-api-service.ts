@@ -60,7 +60,7 @@ export class OpenApiService {
 				'API_SPEC_URL is not configured for this environment.\n\n' +
 					'Action required:\n' +
 					'1. Set API_SPEC_URL_{ENVIRONMENT} in your .env file\n' +
-					'2. Example: API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json\n' +
+					'2. Example: API_SPEC_URL_DEV=https://dev-api.example.com/openapi/v1.json\n' +
 					'3. Restart the MCP server'
 			);
 		}
@@ -97,7 +97,7 @@ export class OpenApiService {
 					actionableMessage +=
 						'Action required:\n' +
 						'1. For self-signed certificates, set NODE_TLS_REJECT_UNAUTHORIZED=0 in your .env\n' +
-						'2. For production, ensure your API has valid SSL certificates\n' +
+						'2. Ensure your API has valid SSL certificates\n' +
 						'3. Contact your API administrator if certificate issues persist';
 				} else if (error.response?.status === 404) {
 					actionableMessage +=

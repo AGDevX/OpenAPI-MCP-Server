@@ -43,22 +43,47 @@
 			<div class="bg-white rounded-lg shadow-md p-6 mb-6">
 				<div class="flex justify-between items-center">
 					<div class="flex-1 flex items-center">
-						<div id="progress-1" class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+						<div
+							id="progress-1"
+							class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold"
+						>
+							1
+						</div>
 						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
 					</div>
 					<div class="flex-1 flex items-center">
-						<div id="progress-2" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">2</div>
+						<div
+							id="progress-2"
+							class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold"
+						>
+							2
+						</div>
 						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
 					</div>
 					<div class="flex-1 flex items-center">
-						<div id="progress-3" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">3</div>
+						<div
+							id="progress-3"
+							class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold"
+						>
+							3
+						</div>
 						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
 					</div>
 					<div class="flex-1 flex items-center">
-						<div id="progress-4" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">4</div>
+						<div
+							id="progress-4"
+							class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold"
+						>
+							4
+						</div>
 						<div class="flex-1 h-1 bg-gray-300 mx-2"></div>
 					</div>
-					<div id="progress-5" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">5</div>
+					<div
+						id="progress-5"
+						class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold"
+					>
+						5
+					</div>
 				</div>
 				<div class="flex justify-between mt-2 text-sm text-gray-600">
 					<span class="flex-1 text-center">Setup</span>
@@ -85,7 +110,9 @@
 							placeholder="my-api"
 							value="my-api"
 						/>
-						<p class="text-sm text-gray-500 mt-1">A unique name for this API server (letters, numbers, dashes, underscores only)</p>
+						<p class="text-sm text-gray-500 mt-1">
+							A unique name for this API server (letters, numbers, dashes, underscores only)
+						</p>
 					</div>
 
 					<div class="mb-6">
@@ -95,12 +122,11 @@
 							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
 							<option value="1" selected>1 (Simple setup)</option>
-							<option value="2">2 (e.g., dev, prod)</option>
-							<option value="3">3 (e.g., dev, qa, prod)</option>
-							<option value="4">4 (e.g., dev, qa, ua, prod)</option>
-							<option value="5">5 (e.g., dev, qa, ua, staging, prod)</option>
+							<option value="2">2 (e.g., dev, qa)</option>
+							<option value="3">3 (e.g., dev, qa, ua)</option>
+							<option value="4">4 (e.g., dev, qa, ua, staging)</option>
 						</select>
-						<p class="text-sm text-gray-500 mt-1">How many different environments do you need? (e.g., development, production)</p>
+						<p class="text-sm text-gray-500 mt-1">How many different environments do you need? (e.g., development, qa)</p>
 					</div>
 
 					<!-- Advanced Settings (Collapsible) -->
@@ -197,7 +223,9 @@
 					</div>
 
 					<div class="flex justify-end mt-6">
-						<button onclick="goToStep(2)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+						<button onclick="goToStep(2)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+							Next
+						</button>
 					</div>
 				</div>
 
@@ -209,8 +237,12 @@
 					<div id="environments-container"></div>
 
 					<div class="flex justify-between mt-6">
-						<button onclick="goToStep(1)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
-						<button onclick="goToStep(3)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+						<button onclick="goToStep(1)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+							Back
+						</button>
+						<button onclick="goToStep(3)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+							Next
+						</button>
 					</div>
 				</div>
 
@@ -222,8 +254,12 @@
 					<div id="test-results-container" class="space-y-4"></div>
 
 					<div class="flex justify-between mt-6">
-						<button onclick="goToStep(2)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
-						<button onclick="goToStep(4)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">Next</button>
+						<button onclick="goToStep(2)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+							Back
+						</button>
+						<button onclick="goToStep(4)" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+							Next
+						</button>
 					</div>
 				</div>
 
@@ -242,7 +278,9 @@
 					<div id="client-selection" class="hidden space-y-4"></div>
 
 					<div class="flex justify-between mt-6">
-						<button onclick="goToStep(3)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
+						<button onclick="goToStep(3)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+							Back
+						</button>
 						<button
 							onclick="goToStep(5)"
 							id="next-to-review"
@@ -279,14 +317,21 @@
 						>
 							Auto-Update Config Files
 						</button>
-						<p class="text-sm text-gray-500 mt-2">This will backup existing configs and update all selected MCP clients automatically.</p>
+						<p class="text-sm text-gray-500 mt-2">
+							This will backup existing configs and update all selected MCP clients automatically.
+						</p>
 					</div>
 
 					<div id="save-result" class="hidden"></div>
 
 					<div class="flex justify-between mt-6">
-						<button onclick="goToStep(4)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">Back</button>
-						<button onclick="window.close()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition">
+						<button onclick="goToStep(4)" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+							Back
+						</button>
+						<button
+							onclick="window.close()"
+							class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition"
+						>
 							✓ Finished
 						</button>
 					</div>
@@ -460,18 +505,18 @@
                     <div class="mb-3">
                         <label class="block text-gray-700 font-medium mb-2">Environment Name</label>
                         <input type="text" id="env-name-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="dev, qa, prod..." value="${env.name}">
+                               placeholder="dev, qa..." value="${env.name}">
                     </div>
                     <div class="mb-3">
                         <label class="block text-gray-700 font-medium mb-2">OpenAPI Spec URL</label>
                         <input type="url" id="env-spec-url-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="https://api.example.com/openapi/v1.json or https://api.example.com/swagger/v1/swagger.json" value="${env.specUrl}">
+                               placeholder="https://dev-api.example.com/openapi/v1.json or https://dev-api.example.com/swagger/v1/swagger.json" value="${env.specUrl}">
                         <p class="text-sm text-gray-500 mt-1">The OpenAPI spec will be retrieved from this URL</p>
                     </div>
                     <div class="mb-3">
                         <label class="block text-gray-700 font-medium mb-2">Base URL</label>
                         <input type="url" id="env-base-url-${i}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="https://api.example.com" value="${env.baseUrl}">
+                               placeholder="https://dev-api.example.com" value="${env.baseUrl}">
                         <p class="text-sm text-gray-500 mt-1">Calls to the API will use this URL</p>
                     </div>
                 `;
@@ -485,9 +530,9 @@
                 <label class="block text-gray-700 font-medium mb-2">Default Environment</label>
                 <select id="default-env" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     ${Array.from({ length: envCount }, (_, i) => {
-											const envName = environments[i]?.name || `env-${i}`;
-											return `<option value="${i}" ${i === 0 ? 'selected' : ''}>${envName || `Environment ${i + 1}`}</option>`;
-										}).join('')}
+																					const envName = environments[i]?.name || `env-${i}`;
+																					return `<option value="${i}" ${i === 0 ? 'selected' : ''}>${envName || `Environment ${i + 1}`}</option>`;
+																				}).join('')}
                 </select>
                 <p class="text-sm text-gray-500 mt-1">Which environment to use by default</p>
             `;
@@ -526,15 +571,15 @@
                         <div>
                             <h4 class="font-semibold ${r.valid ? 'text-green-800' : 'text-red-800'}">${r.env}</h4>
                             ${
-															r.valid
-																? `
+																													r.valid
+																														? `
                                 <p class="text-sm text-green-700 mt-1">${r.spec.title} (v${r.spec.version})</p>
                                 ${r.spec.description ? `<p class="text-sm text-gray-600 mt-1">${r.spec.description}</p>` : ''}
                             `
-																: `
+																														: `
                                 <p class="text-sm text-red-700 mt-1">${r.error}</p>
                             `
-														}
+																												}
                         </div>
                         <div class="text-2xl">
                             ${r.valid ? '✓' : '✗'}

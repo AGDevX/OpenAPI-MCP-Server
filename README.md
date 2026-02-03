@@ -6,7 +6,7 @@ Turn any OpenAPI specification into MCP tools for AI assistants. Point it at you
 
 - **Dynamic Tool Generation** - Automatically creates MCP tools from OpenAPI 3.0/3.1 specifications
 - **Friendly Tool Names** - Smart naming: `post_api_v1_users` → `create_user` with helpful descriptions
-- **Multi-Environment Support** - Switch between dev, qa, and prod environments per-request
+- **Multi-Environment Support** - Switch between dev, qa, and other environments per-request
 - **Live Spec Refresh** - Update tools without restarting
 - **Rate Limiting** - Built-in protection with configurable request limits
 - **Two Transport Methods** - stdio (easiest) or HTTP (Docker)
@@ -31,7 +31,7 @@ This launches a browser-based wizard that:
 
 - Visual multi-step wizard
 - Real-time URL validation
-- Support for multiple environments (dev, qa, prod)
+- Support for multiple environments (dev, qa, etc.)
 - Auto-detects VS Code, Claude Desktop, and Claude Code
 - Safe auto-update with backups or manual copy option
 
@@ -55,30 +55,28 @@ Configure via environment variables. When using npx, set these in your MCP clien
 
 ```bash
 # Define your environments (comma-separated)
-ENVIRONMENTS=prod
+ENVIRONMENTS=dev
 
 # OpenAPI spec URL for each environment (used ONLY to fetch the spec)
-API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json
+API_SPEC_URL_PDEV=https://dev-api.example.com/openapi/v1.json
 
 # Base API URL for each environment (used for all API calls)
-API_BASE_URL_PROD=https://api.example.com
+API_BASE_URL_DEV=https://dev-api.example.com
 ```
 
 ### Multiple Environments
 
 ```bash
-ENVIRONMENTS=dev,qa,prod
+ENVIRONMENTS=dev,qa
 DEFAULT_ENVIRONMENT=dev
 
 # OpenAPI spec URLs (used to fetch the spec)
 API_SPEC_URL_DEV=https://dev-api.example.com/openapi/v1.json
 API_SPEC_URL_QA=https://qa-api.example.com/openapi/v1.json
-API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json
 
 # Base API URLs (used for API calls)
 API_BASE_URL_DEV=https://dev-api.example.com
 API_BASE_URL_QA=https://qa-api.example.com
-API_BASE_URL_PROD=https://api.example.com
 ```
 
 ### Optional Settings
@@ -148,9 +146,9 @@ Edit your VS Code MCP config file (`mcp.json`):
 			"command": "npx",
 			"args": ["agdevx-openapi-mcp-server"],
 			"env": {
-				"ENVIRONMENTS": "prod",
-				"API_SPEC_URL_PROD": "https://api.example.com/openapi/v1.json",
-				"API_BASE_URL_PROD": "https://api.example.com"
+				"ENVIRONMENTS": "dev",
+				"API_SPEC_URL_DEV": "https://dev-api.example.com/openapi/v1.json",
+				"API_BASE_URL_DEV": "https://dev-api.example.com"
 			}
 		}
 	}
@@ -173,9 +171,9 @@ Edit your Claude Desktop config:
 			"command": "npx",
 			"args": ["agdevx-openapi-mcp-server"],
 			"env": {
-				"ENVIRONMENTS": "prod",
-				"API_SPEC_URL_PROD": "https://api.example.com/openapi/v1.json",
-				"API_BASE_URL_PROD": "https://api.example.com"
+				"ENVIRONMENTS": "dev",
+				"API_SPEC_URL_DEV": "https://dev-api.example.com/openapi/v1.json",
+				"API_BASE_URL_DEV": "https://dev-api.example.com"
 			}
 		}
 	}
@@ -203,9 +201,9 @@ Add to config file:
 			"command": "npx",
 			"args": ["agdevx-openapi-mcp-server"],
 			"env": {
-				"ENVIRONMENTS": "prod",
-				"API_SPEC_URL_PROD": "https://api.example.com/openapi/v1.json",
-				"API_BASE_URL_PROD": "https://api.example.com"
+				"ENVIRONMENTS": "dev",
+				"API_SPEC_URL_DEV": "https://dev-api.example.com/openapi/v1.json",
+				"API_BASE_URL_DEV": "https://dev-api.example.com"
 			}
 		}
 	}
@@ -219,6 +217,7 @@ Add to config file:
 For VS Code or Claude Desktop, if using Docker instead of npx:
 
 **VS Code (mcp.json):**
+
 ```json
 {
 	"servers": {
@@ -231,6 +230,7 @@ For VS Code or Claude Desktop, if using Docker instead of npx:
 ```
 
 **Claude Desktop (claude_desktop_config.json):**
+
 ```json
 {
 	"mcpServers": {
@@ -295,7 +295,7 @@ Every API tool includes an optional `environment` parameter. Switch between envi
 "Get account information from the dev environment"
 
 # Compare across environments
-"Get user 123 from dev, then from prod"
+"Get user 123 from dev, then from qa"
 
 # See differences between environments
 "What's the difference between the APIs running in dev and qa?"
@@ -358,7 +358,7 @@ This provides:
 Example output:
 
 ```
-Environments: 2 (prod✓, dev✗ unreachable)
+Environments: 2 (dev✓, qa✗ unreachable)
 Rate Limit: 3/10 requests used (resets in 45s)
 Tools Available: 15
 Last Spec Refresh: 2 minutes ago
