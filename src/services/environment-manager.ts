@@ -35,9 +35,9 @@ export class EnvironmentManager {
 			throw new Error(
 				'No valid environments configured.\n\n' +
 					'Action required:\n' +
-					'1. Set ENVIRONMENTS in your .env file (e.g., ENVIRONMENTS=prod)\n' +
-					'2. Set API_SPEC_URL for each environment (e.g., API_SPEC_URL_PROD=https://api.example.com/openapi/v1.json)\n' +
-					'3. Set API_BASE_URL for each environment (e.g., API_BASE_URL_PROD=https://api.example.com)\n' +
+					'1. Set ENVIRONMENTS in your .env file (e.g., ENVIRONMENTS=dev)\n' +
+					'2. Set API_SPEC_URL for each environment (e.g., API_SPEC_URL_DEV=https://dev-api.example.com/openapi/v1.json)\n' +
+					'3. Set API_BASE_URL for each environment (e.g., API_BASE_URL_DEV=https://dev-api.example.com)\n' +
 					'4. Restart the MCP server\n\n' +
 					'See .env.example for configuration examples.'
 			);
